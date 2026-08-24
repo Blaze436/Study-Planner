@@ -109,4 +109,5 @@ After completing the task user clicks the checkbox, the task is registered as co
 **A. It is an optional option when creating a block to assign an estimated/desired time**
 
 #### Q. What is a block is completed early before its assigned date?
-**A. It will simply disappear early and will not show up on the assigned date. If a user does too many tasks before their assigned date, it can lead to many vacant days. Post-MVP we can make am algorith for this, perhaps.(Note: Once a block is completed, no matter when, it will disappear)**
+**A. If a day has no tasks but future days have tasks, 
+show a simple "You're ahead of schedule!" message with a preview of upcoming tasks.**
