@@ -88,3 +88,25 @@ After completing the task user clicks the checkbox, the task is registered as co
 - Physics Exam Prep: Unit 2: Exercise 3 ✅
 - Physics Exam Prep: Unit 3: Exercise 1 ✅
 
+## Additional Questions
+
+### Q. What happens when a block isn't completed?
+**A. It gets re-scheduled to the next day. This can lead to blocks piling up but for now this is the simplest fix.** 
+
+### Q. Can a block be moved?
+**A. After a block is created it will have three options: Edit, Re-schedule, and Delete**
+
+### Q. Can a block exist without a goal?
+**A. Good thought, especially for one time tasks, but as a post-MVP options**
+
+### Q. Can a block span for multiple days?
+**A. Just break it into smaller blocks**
+
+### Q. What hapens if a goal has 100/200 Blocks?
+**A. The app will show a percentage of completed to total blocks**
+
+### Q. What does the EstimatedMinutes actually do?
+**A. It is an optional option when creating a block to assign an estimated/desired time**
+
+#### Q. What is a block is completed early before its assigned date?
+**A. It will simply disappear early and will not show up on the assigned date. If a user does too many tasks before their assigned date, it can lead to many vacant days. Post-MVP we can make am algorith for this, perhaps.(Note: Once a block is completed, no matter when, it will disappear)**
