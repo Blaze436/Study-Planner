@@ -39,9 +39,6 @@
 - A "+ New Goal" option to create a goal
 - User can create/schedule/edit/delete blocks
 
-**Questions for later:** 
-- How will blocks be organized? By creation date/assigned date or something else?
-
 ### 2. Goal Creation
 
 **Concept:** Works like a folder to store blocks
@@ -57,7 +54,6 @@
 - After saving, goal appears in "My Goals" list
 
 **Questions for later:**
-- Does a goal have a target date?
 - Can a goal have zero blocks?
 
 ---
@@ -69,7 +65,6 @@
 **Properties:**
 - Block Title (required)
 - Description (optional)
-- Estimated Minutes (optional number)
 - Assigned Date (calendar picker, VERY IMPORTANT!)
 - Link to parent Goal (goalId)
 - Can Edit/Re-schedule/Delete
@@ -82,7 +77,6 @@
 
 **Questions for later:**
 - Can blocks be reordered?
-- Can a block be assigned to "no date" (unscheduled)?
 
 ---
 
@@ -128,8 +122,8 @@
 **Concept:** Everything user creates stays saved even after closing the browser
 
 **Properties:**
-- Goals save (title, subject, target date)
-- Blocks save (title, minutes, assigned date, completion status)
+- Goals save (title)
+- Blocks save (title, description, assigned date, order, completion status)
 - Data persists across browser sessions
 
 **User Experience:**
@@ -174,4 +168,4 @@
 
 ### Note(Oct 6)
 
-The MVP is the paper-system v1 — dated blocks, goals, Today's View, tick-off, progress %, manual reschedule. The vision (utility platform with user-composed primitives) is documented in `DECISIONS.md` and does not change MVP scope.
+The MVP is the paper-system v1 — dated blocks, goals, Today's View, tick-off, progress %, manual reschedule. The vision (utility platform with user-composed primitives) is documented in `DECISIONS.md` and does not change MVP scope. `estimatedMinutes` and `category` are cut from MVP (see DECISIONS.md #11). `order` is added. `assignedDate` is required. `targetDate` is out.

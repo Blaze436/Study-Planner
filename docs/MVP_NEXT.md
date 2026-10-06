@@ -17,22 +17,24 @@
 ## Next Features (Priority Order)
 
 ### 1. Cycle System
-**Concept:** A container of blocks ordered chronologically, with dates auto-assigned based on order and a user-set minimum.
+
+**Concept:** A container of blocks ordered chronologically. Dates are auto-assigned based on block order and a user-set minimum.
 
 **Properties:**
 - Cycle has: id, startDate, endDate, per-goal minimums
-- Blocks belong to a cycle (derived from `assignedDate` range, or via new `cycleId` field)
-- Order is chronological; dates are derived from order + minimum
+- Blocks belong to a cycle via explicit membership — either `cycleId` on the block, or an ordered list inside the Cycle record
+- **Dates are derived** from order + minimum, not assigned by the user
 
 **User Experience:**
 - User creates a cycle (e.g., one week)
-- User dumps all blocks into the cycle in any order
+- User dumps blocks into the cycle in any order
 - App auto-assigns dates to the first N blocks based on the minimum
 - When a block is completed, the line shifts forward and dates re-derive
+- A planning day at the end of each cycle to review and plan the next
 
-**Why it matters:** The farther out you plan, the less accurate. Cycles force weekly re-planning. Also adds a natural feedback loop.
+**Why it matters:** The farther out you plan, the less accurate. Cycles force weekly re-planning.
 
-**Depends on:** Nothing from MVP breaking. Blocks must stay flat.
+**Depends on:** Blocks must stay flat. `order` field should exist (see DECISIONS.md). Automatic rollover is opt-in, so users on manual flow aren't affected.
 
 ---
 

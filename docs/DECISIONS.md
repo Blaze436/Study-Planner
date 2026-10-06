@@ -84,3 +84,44 @@ Every decision here has a reason. If the reason changes, the decision can change
 - Loading uses defaults for any missing field.
 
 **Reason:** Flat collections let us add a Cycle entity later without touching any block. `schemaVersion` lets us migrate saved data forward. Defaults let old saved data work after new fields are added.
+
+---
+
+## Decision 8 — Block ordering uses an `order` field
+
+**Decision:** Each block has an `order` field — its position within its goal.
+
+**Reason:** Paper v1 had S.no as an explicit column. By Decision 1 (paper is the reference), this justifies including `order` now, not as a "just-in-case" hook. It also makes future cycle migration easy: when cycles arrive, `schemaVersion` lets us compute dates from `order`.
+
+---
+
+## Decision 9 — Missed blocks are visible but not aggressive
+
+**Decision:** A missed block stays on its original date (Decision 6). It appears in Goals & Blocks with a quiet "missed" label. Today's View shows only a one-line count ("2 missed") linking to Goals & Blocks.
+
+**Reason:** Paper didn't hide missed blocks — the unticked row sat on a visible page. But paper also didn't punish. This preserves visibility without the anxiety wall of an overdue list.
+
+---
+
+## Decision 10 — MVP display defaults
+
+These are defaults for the first code implementation. Revisit after launch.
+
+- **Block ordering (Goals & Blocks):** Chronological by `assignedDate`, then by `order`.
+- **Completed tasks in Today's View:** Stay visible with strikethrough and reduced opacity.
+- **Zero-block goal:** Allowed. Shows "No blocks yet" instead of a percentage (avoids division by zero).
+- **Empty Today's View:** Simple message ("No tasks today" + optional preview of upcoming).
+
+---
+
+## Decision 11 — Fields cut from MVP
+
+**Decision:** `estimatedMinutes` is cut. `category` is cut.
+
+**Reason (estimatedMinutes):** Paper had no estimate column. Blocks were "small and equal steps," so estimates were never needed. Adding an optional field later is cheap.
+
+**Reason (category):** In paper, "Subject" was essentially the goal itself (one goal per subject). A goal-level category is redundant with the goal structure.
+
+**Kept:** `createdAt` and `completedAt`. Timestamps cannot be backfilled; future stats depend on them.
+
+*Note: this reverses a field from the original MVP_MUST. Flag in your head — if category turns out to be needed for filtering goals, it's a one-line addition later.*

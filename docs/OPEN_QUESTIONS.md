@@ -6,38 +6,42 @@ Questions not yet resolved. Revisit as needed — but not before the MVP ships, 
 
 ## Blocking for MVP
 
-*(Currently empty — MVP scope is locked as of Oct 6.)*
+**Missed block visibility.**
+Today's View shows only today's blocks, so a missed block on a past date becomes invisible. Resolution (MVP):
+- Missed blocks show in **Goals & Blocks** with a quiet "missed" label.
+- Today's View shows at most a one-line count, like "2 missed," linking there.
+- No wall of overdue tasks. No auto-move.
 
 ---
 
 ## Post-MVP (revisit after Nov 1)
 
-1. **App name.** Current working title: "Study Planner." Too narrow — the app is already general-purpose. Candidates: Steady, Stride, Trek, Goal Planner. Decide after launch.
+1. **App name.** Current working title: "Study Planner." Too narrow. Candidates: Steady, Stride, Trek, Goal Planner. Decide after launch.
 
-2. **The cycle/date mechanic.** (Clarified Oct 6.) In the cycle version, blocks stood in a line in chronological order. Dates were auto-assigned based on order + the minimum. When a block was completed, the line shifted forward and dates re-derived. The user never manually assigned dates — the cycle did.
-   - This is why cycles are so powerful: dates are a consequence, not a commitment.
-   - This is post-MVP. But the schema must stay compatible with it.
-   - Future work: a Cycle entity that holds its own date range and per-goal minimums. Blocks stay flat; cycle membership derived from `assignedDate` range.
+2. **The cycle/date mechanic.** (Clarified Oct 6.) In the cycle version, blocks stood in a line in chronological order. Dates were auto-assigned based on order + minimum. **Dates are derived from the cycle — so cycle membership cannot be derived from dates.** Cycles need explicit membership: either a `cycleId` on blocks, or an ordered list inside the Cycle record. Post-MVP.
 
-3. **Public/private repo toggle.** The repo is private during planning. Before deploying (like Driver Calculator), it must be flipped to public for free GitHub Pages. Set a reminder.
+3. **Repo visibility.** The repo is private during planning. Flip to public before deploying. Set a reminder.
 
-4. **Block ordering within a goal.** When a goal has many blocks, how are they displayed? By `assignedDate` (chronological) or by user-defined order? Paper used chronological. Lean: chronological.
+4. **Block ordering within a goal.** By `assignedDate` (chronological) or by user-defined order? Paper v1 used S.no — an explicit order. The `order` field is justified now (see DECISIONS.md).
 
-5. **Empty Today's View.** When the user opens the app on a day with no scheduled blocks:
-   - Post-MVP option A: "You're ahead of schedule!" with a preview of upcoming blocks.
-   - Post-MVP option B: just an empty state message.
-   - MVP: simple empty state text.
+5. **Empty Today's View.** When the user opens the app on a day with no scheduled blocks: "You're ahead of schedule!" with preview of upcoming blocks, or just an empty state message? Lean: simple empty state text for MVP.
 
-6. **Completed tasks in Today's View.** Do they disappear or stay with a strikethrough?
-   - Paper: they stayed with a tick. Lean: keep them visible with visual distinction.
+6. **Completed tasks in Today's View.** Do they disappear or stay with a strikethrough? Lean: keep them visible with visual distinction.
 
-7. **Undo for accidental completion.** A missed checkbox click is annoying. Post-MVP: undo button, or a brief undo toast. MVP: no.
+7. **Undo for accidental completion.** Post-MVP: undo button or brief undo toast. Not in MVP.
 
-8. **Block editing after completion.** Can a completed block be edited? Deleted?
-   - Lean: yes, but this needs a UI decision.
+8. **Editing completed blocks.** Can a completed block be edited or deleted? Lean: yes, but needs a UI decision.
+
+---
+
+## Tasks (not questions)
+
+- [ ] Flip repo to public before deploy.
+- [ ] Decide which planning docs ship publicly (PAPER_SYSTEM.md is personal — may exclude).
+- [ ] Register domain? (skip — not needed for MVP, driver app precedent)
 
 ---
 
 ## Ideas log
 
-New ideas go here, not into scope documents. If an idea survives the MVP launch and still feels right, it graduates to `MVP_NEXT.md`.
+New ideas go here, not into scope documents. If an idea survives launch and still feels right, it graduates to `MVP_NEXT.md`.
