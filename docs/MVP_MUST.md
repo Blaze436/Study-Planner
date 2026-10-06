@@ -169,3 +169,9 @@
 - edit/reschedule/delete
 - retain data in browser
 - plan dates ahead
+
+---
+
+### Note(Oct 6)
+
+The MVP is the paper-system v1 — dated blocks, goals, Today's View, tick-off, progress %, manual reschedule. The vision (utility platform with user-composed primitives) is documented in `DECISIONS.md` and does not change MVP scope.
