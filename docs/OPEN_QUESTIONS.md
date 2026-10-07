@@ -6,11 +6,7 @@ Questions not yet resolved. Revisit as needed — but not before the MVP ships, 
 
 ## Blocking for MVP
 
-**Missed block visibility.**
-Today's View shows only today's blocks, so a missed block on a past date becomes invisible. Resolution (MVP):
-- Missed blocks show in **Goals & Blocks** with a quiet "missed" label.
-- Today's View shows at most a one-line count, like "2 missed," linking there.
-- No wall of overdue tasks. No auto-move.
+*No blocking items. MVP scope is locked as of Oct 7.*
 
 ---
 
@@ -20,13 +16,9 @@ Today's View shows only today's blocks, so a missed block on a past date becomes
 
 2. **The cycle/date mechanic.** (Clarified Oct 6.) In the cycle version, blocks stood in a line in chronological order. Dates were auto-assigned based on order + minimum. **Dates are derived from the cycle — so cycle membership cannot be derived from dates.** Cycles need explicit membership: either a `cycleId` on blocks, or an ordered list inside the Cycle record. Post-MVP.
 
-3. **Empty Today's View.** When the user opens the app on a day with no scheduled blocks: "You're ahead of schedule!" with preview of upcoming blocks, or just an empty state message? Lean: simple empty state text for MVP.
+3. **Undo for accidental completion.** Post-MVP: undo button or brief undo toast. Not in MVP.
 
-4. **Completed tasks in Today's View.** Do they disappear or stay with a strikethrough? Lean: keep them visible with visual distinction.
-
-5. **Undo for accidental completion.** Post-MVP: undo button or brief undo toast. Not in MVP.
-
-6. **Editing completed blocks.** Can a completed block be edited or deleted? Lean: yes, but needs a UI decision.
+4. **Editing completed blocks.** Can a completed block be edited or deleted? Lean: yes, but needs a UI decision.
 
 ---
 

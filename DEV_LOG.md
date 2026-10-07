@@ -61,7 +61,7 @@
 
 ## Day 2 — Schema Design & Durability Layer
 **Date:** 7 October 2026
-**Time spent:** ~5 hours (Driver 1h + Planner 4h)
+**Time spent:** ~6 hours (Driver 1h + Planner 4h + Post-commit cleanup 1h)
 
 ### What I did
 **Driver app:**
@@ -109,8 +109,10 @@
 - Three-key storage model
 - Export file format includes `app` and `exportedAt`, excludes device state
 - Import rules: parse inside try/catch, reject newer schema versions, drop orphan blocks, confirm with counts
-- **Decision 8:** Changed as per Decision 15
+- **Decision 8:** Updated — order is primary sort, `assignedDate` is independent. Cross-referenced with Decision 15 for reordering mechanics.
 - **Decision 15:** Decided that blocks will be ordered via `order`, making them independent of `assignedDate`. An arrow up and down button for ordering.
+- **Decision 14:** Settings tab added — 3-tab navigation (Today's View / Goals & Blocks / Settings)
+- **Section D dry-run completed:** Confirmed the schema handles goal creation, missed blocks, reschedule, future cycle extension, and goal deletion. No field meanings need to change to accommodate cycles.
 
 ### Post-commit review
 Architect flagged inconsistencies after commit. Fixed:
