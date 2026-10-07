@@ -2,7 +2,7 @@
 
 ## Foundation
 
-**File Purpose:** This document defines the MINIMUM features required for the Study Planner to be functional, useful, and launchable. No feature in this document can be cut.
+**File Purpose:** This document defines the MINIMUM features required for the Study Planner to be functional, useful, and launchable. No Tier 1 feature can be cut. Tier 2 features may slip to post-MVP if the schedule requires it (see Decision 13).
 
 **App Purpose:** It allows people to break huge goals into small scheduled actionable steps over a period of time.
 
@@ -53,7 +53,6 @@
 - After saving, goal appears in "My Goals" list
 
 **Questions for later:**
-- Can a goal have zero blocks?
 
 ---
 
@@ -75,7 +74,6 @@
 - User can delete a block before saving
 
 **Questions for later:**
-- Can blocks be reordered?
 
 ---
 
@@ -93,7 +91,7 @@
 
 **Questions for later:**
 - What if there are no tasks for today?
-- Should it show task schedules for the future?
+- Should it show task scheduled for the future?
 
 ---
 
@@ -147,7 +145,42 @@
 
 **Questions for later:**
 - What about past dates? Can the user view them?
-- Should there be a settings tab?
+
+---
+
+### 8. Reorder Blocks
+- Up/down buttons swap a block with its next neighbor in the goal (sorted by `order`).
+- Does not change `assignedDate`.
+
+---
+
+### 9. Missed Block Visibility
+- Missed blocks (past date, not complete) appear in Goals & Blocks with a quiet "missed" label.
+- Today's View shows a one-line count, e.g. "2 missed", linking to Goals & Blocks.
+
+---
+
+### 10. Settings Tab
+- Export backup (download or share)
+- Import backup
+- Request persistent storage
+- Add-to-home-screen note
+- FAQ
+- About
+
+---
+
+### 11. Data Durability (Tier 1)
+- Export/import file
+- Share sheet for export
+- Persistent storage request
+- Add-to-home-screen note
+
+---
+
+### 12. Data Durability (Tier 2 — if schedule allows)
+- Backup reminder banner
+- Safety snapshot (previous state kept before import and goal delete)
 
 ---
 

@@ -120,10 +120,13 @@ Every decision here has a reason. If the reason changes, the decision can change
 
 These are defaults for the first code implementation. Revisit after launch.
 
-- **Block ordering (Goals & Blocks):** Chronological by `assignedDate`, then by `order`.
+- **Block ordering (Goals & Blocks):** Primary sort by `order` within each goal. `assignedDate` is displayed on each row but does not affect sort order.
+- **Today's View grouping:** Grouped by goal (in goal `createdAt` order). Within each group, sorted by `order`.
+- **Editing completed blocks:** Allowed. Same edit action as uncompleted blocks.
 - **Completed tasks in Today's View:** Stay visible with strikethrough and reduced opacity.
 - **Zero-block goal:** Allowed. Shows "No blocks yet" instead of a percentage (avoids division by zero).
 - **Empty Today's View:** Simple message ("No tasks today" + optional preview of upcoming).
+- **Unticking a completed block:** `isCompleted` → `false`, `completedAt` → `null`.
 
 ---
 
@@ -141,7 +144,7 @@ These are defaults for the first code implementation. Revisit after launch.
 
 ---
 
-## Decision 12
+## Decision 12 — Deleting a goal deletes its blocks
 
 **Decision:** Deleting a goal deletes its blocks, When a user deletes a goal, all blocks belonging to that goal are deleted too, after a confirmation dialog. Blocks cannot exist without a goal in the MVP.
 
@@ -185,11 +188,13 @@ At the end of week 2, if the build is behind: Tier 2 slips to post-MVP. Tier 1 d
 
 **Decision:** Navigation is three tabs — Today's View (default), Goals & Blocks, Settings. Settings holds backup/export, import, FAQ, and app notes.
 
+**Reason:** Backup/import/FAQ are utility features that don't belong in the daily-use screens (Today's View, Goals & Blocks). Keeping them in a separate tab keeps the main flow clean.
+
 ---
 
 ## Decision 15 — Reorder mechanics
 
-**Decision:** Users reorder blocks within a goal using up/down buttons that swap a block with its neighbor. Drag-and-drop is post-MVP.
+**Decision:** Users reorder blocks within a goal using up/down buttons that swap a block with its neighbor, "neighbor" means the next block in sorted order, not order minus 1 (gaps exist). Drag-and-drop is post-MVP.
 
 **Reason:**
 - Up/down works reliably on all phones; drag-and-drop is finicky on mobile and harder to build.

@@ -28,13 +28,21 @@ Three localStorage keys, all managed only by the data adapter.
 
 A goal is a container. It names a larger objective that the user is working toward.
 
-| Field	| Type	| Required | Default | Set by | Stored |
-|-------|-------|----------|---------|--------|--------|
-| `id`	| string | yes | generated | system | yes |
-| `title` |	string | yes | — | user | yes |
-| `createdAt` |	string (ISO datetime) | yes | new Date().toISOString()	system | system | yes |
+**Goal deletion confirmation:** "Delete Physics and its 40 blocks?"
+
+| Field | Type | Required | Default | Set by | Stored |
+|-------|------|----------|---------|--------|--------|
+| `id` | string | yes | generated | system | yes |
+| `title` | string | yes | — | user | yes |
+| `createdAt` | string (ISO datetime) | yes | `new Date().toISOString()` | system | yes |
 
 ID format: `goal_<uuid>` where `<uuid>` comes from `crypto.randomUUID()`.
+
+**Fallback for older devices:** `crypto.randomUUID()` is not available in older browsers. Use:
+
+```js
+crypto.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(36).slice(2)}`
+```
 
 Example:
 
@@ -103,13 +111,18 @@ Save the entire `plannerData` object on every mutation (create goal, edit block,
 
 Import goes through `importAll(bundle)` in the data layer. Screens only call it.
 
+The canonical in-memory `plannerData` is defined once as `{ schemaVersion, goals, blocks }`. This is the shape used by the data adapter and by every mutation.
+
 1. **Parse inside try/catch.** Files can be corrupted or the wrong format entirely.
 2. **Check `app === "study-planner"`.** Reject anything else with a clear message.
-3. **Check `schemaVersion`.** If it's newer than the app's version, reject — otherwise old code silently mangles new data.
-4. **Validate required fields and apply defaults.** Never trust the file's contents.
-5. **Drop blocks whose `goalId` doesn't exist.** Warn the user how many were dropped.
-6. **Confirm with counts before replacing:** "This replaces your 3 goals and 40 blocks with 5 goals and 80 blocks from the backup dated Oct 7." Counts make accidental overwrites obvious.
-7. **Take a safety snapshot first.** Write the current state to `studyPlanner_prev` before replacing, so an accidental import can be undone.
+3. **Migrate older versions before validation.** If `bundle.schemaVersion` is older than the app's current version, call `migrate(bundle)` before validating or normalizing the imported data. `migrate(bundle)` must return the canonical `plannerData` shape, with each older-version field migrated to the current schema and no raw legacy values retained.
+4. **Check `schemaVersion`.** If it's newer than the app's version, reject — otherwise old code silently mangles new data.
+5. **Validate required fields and apply defaults.** Never trust the file's contents.
+6. **Drop blocks whose `goalId` doesn't exist.** Warn the user how many were dropped.
+7. **Confirm with counts before replacing:** "This replaces your 3 goals and 40 blocks with 5 goals and 80 blocks from the backup dated Oct 7." Counts make accidental overwrites obvious.
+8. **Take a safety snapshot first.** Write the current state to `studyPlanner_prev` before replacing, so an accidental import can be undone.
+
+**Required fields without defaults:** If a goal is missing `id`, `title`, or `createdAt`, drop the goal and its blocks. If a block is missing `id`, `goalId`, `title`, `assignedDate`, `order`, `isCompleted`, or `createdAt`, drop the block. Tell the user how many records were dropped in both cases.
 
 ---
 
@@ -125,7 +138,9 @@ Import goes through `importAll(bundle)` in the data layer. Screens only call it.
 
 - If `schemaVersion` is missing → assume 1.
 
-- If `schemaVersion` is greater than the app's current version → the user has opened the app on a newer device/session. Log a warning and proceed with defaults.
+- If `schemaVersion` is greater than the app's current version → the data was created by a newer version of the app. **Do not load it. Show a message: "This backup was created by a newer version of the app. Please update."** Do not save over it either. Refusing to touch newer data is safer than silently downgrading it.
+
+**Required fields without defaults:** If a goal is missing `id`, `title`, or `createdAt`, drop the goal and its blocks. If a block is missing `id`, `goalId`, `title`, `assignedDate`, `order`, `isCompleted`, or `createdAt`, drop the block. Tell the user how many records were dropped in both cases.
 
 ---
 
@@ -248,6 +263,7 @@ A user creates one goal ("Physics Exam Prep") and three blocks.
 }
 
 ```
+**Note:** `blk_001`, `blk_002` etc. in the examples are shortened forms of `blk_<uuid>`.
 
 ### Derived from this data (not stored):
 
