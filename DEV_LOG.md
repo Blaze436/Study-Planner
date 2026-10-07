@@ -111,3 +111,13 @@
 - Import rules: parse inside try/catch, reject newer schema versions, drop orphan blocks, confirm with counts
 - **Decision 8:** Changed as per Decision 15
 - **Decision 15:** Decided that blocks will be ordered via `order`, making them independent of `assignedDate`. An arrow up and down button for ordering.
+
+### Post-commit review
+Architect flagged inconsistencies after commit. Fixed:
+- Destructive load rule (newer schema version)
+- Missing required-field rules (drops records, warns user)
+- Decision 10 vs Decision 8 contradiction
+- MVP_MUST no longer matched the actual MVP features
+- Privacy FAQ was falsely claiming no data is sent
+- POST_DEV counts now honest (external drivers: 0)
+- Various small formatting/wording fixes
