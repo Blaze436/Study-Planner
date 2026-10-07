@@ -59,7 +59,55 @@
 5. Render by looping over data
 6. Loading tolerates missing or extra fields
 
-### What's next
-- **Day 2:** Final schema in `docs/data_schema.md`, add `order` to block definition, apply the cut fields, move defaults into `DECISIONS.md`
-- **Driver app parallel track:** Session 2 — write bilingual hints, English FAQ, create UTM links, request to join Facebook groups
-- **Ongoing:** Protect the schedule — no redefinition of MVP scope before launch
+## Day 2 — Schema Design & Durability Layer
+**Date:** 7 October 2026
+**Time spent:** ~5 hours (Driver 1h + Planner 4h)
+
+### What I did
+**Driver app:**
+- Confirmed GA4 custom dimension "Ride Platform" registered with parameter `ride_platform`
+- Archived the old "Platform" dimension (superseded by Ride Platform)
+- Wrote `texts_en.md` with 9 field hints and 11 FAQ entries
+- Created `utm_links.md` with 7 channel-specific links (verified working via DebugView)
+- Sent join requests to 10 Facebook driver groups
+- Logged Day 2 in `POST_DEV.md`
+
+**Study Planner:**
+- Archived `data_model.md` → `data_model_SUPERSEDED.md` with header
+- Updated `MVP_MUST.md` with scope lock (assignedDate required, order added, estimatedMinutes and category cut)
+- Fixed cycle explanation in `OPEN_QUESTIONS.md` and `MVP_NEXT.md`
+- Added exception to Decision 1 for invisible fields (timestamps, schemaVersion)
+- Learned about the timezone trap: `toISOString()` returns UTC, wrong for Karachi between midnight and 5 AM
+- Wrote `docs/data_schema.md` v1 with goals, blocks, derived values, complete example, load rules
+- Made Decision 12: deleting a goal deletes its blocks (paper crossed out pages together)
+- Made **Decision 13: data durability** after realizing localStorage alone is too risky for an app with irreplaceable user effort
+- Designed the durability stack: three localStorage keys, export/import file, share sheet, persistent storage request
+- Updated `MVP_NEXT.md` with cloud sync (priority 1), File System Access, CSV export, PWA
+
+### What worked
+- The paper system principle (Decision 1) resolved most schema questions mechanically — no debate needed
+- The Architect's durability framework (Tier 1 vs Tier 2 with a cut rule) made the decision manageable
+- Realizing the browser can't write files silently was important — "automatic backup" had to be reframed as "one-tap backup"
+- The three-key storage model (data / meta / prev snapshot) cleanly separates concerns
+- Making the export file carry `app: "study-planner"` and `exportedAt` prevents accidental wrong-file imports
+
+### What I learned
+- **The timezone trap:** `new Date().toISOString().split("T")[0]` returns yesterday's date between midnight and 5 AM Karachi time. Must build "today" from local year/month/day.
+- **Browsers cannot silently write files.** "Automatic backup" is impossible. The honest version is "prepared, one tap to save."
+- **The share sheet matters more than downloads on mobile.** Users don't open Downloads folders. They do send things to themselves on WhatsApp.
+- **Three storage keys separate different concerns:** user data, device state, safety snapshot. Mixing them causes bugs when the user moves to a new device.
+- **Data durability is a design decision, not an implementation detail.** It shapes the schema and the load/import rules.
+- **Safety snapshot protects against my own bugs,** not against user mistakes or data loss. It's a "prev state" rollback, not a backup.
+
+### What confused me
+- Initially wanted "automatic backups" — had to work through why that isn't possible in a browser
+- Brief uncertainty about whether device state (lastBackupAt) belongs in the export file — resolved by thinking about what happens if a user imports on a different device
+
+### Design decisions locked in (references)
+- **Decision 12:** Deleting a goal deletes its blocks (with confirmation)
+- **Decision 13:** Data durability — Tier 1 in MVP, Tier 2 if schedule allows
+- Three-key storage model
+- Export file format includes `app` and `exportedAt`, excludes device state
+- Import rules: parse inside try/catch, reject newer schema versions, drop orphan blocks, confirm with counts
+- **Decision 8:** Changed as per Decision 15
+- **Decision 15:** Decided that blocks will be ordered via `order`, making them independent of `assignedDate`. An arrow up and down button for ordering.

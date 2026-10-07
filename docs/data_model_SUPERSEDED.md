@@ -1,3 +1,6 @@
+> **SUPERSEDED on 7 Oct 2026 by `data_schema.md`.**
+> Kept for historical reference only. Do not edit.
+
 # Study Planner - Data Model
 
 ## Key Components

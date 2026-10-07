@@ -14,6 +14,8 @@ Every decision here has a reason. If the reason changes, the decision can change
 - Copy the behavior, not the medium. Paper has affordances the app doesn't (whole-week visibility, deliberate erasing, physical presence). Translate those where relevant.
 - It's evidence from one person. Fine for an MVP built for personal use. Not proof about other users.
 
+**Exception:** Decisions 1 (paper is the reference) does not apply to *invisible* fields — timestamps (`createdAt`, `completedAt`) and technical fields (`schemaVersion`). These exist for future functionality and cannot be backfilled later, so they're allowed even when paper was silent on them.
+
 ---
 
 ## Decision 2 — The vision: a canvas, not a tool
@@ -89,9 +91,20 @@ Every decision here has a reason. If the reason changes, the decision can change
 
 ## Decision 8 — Block ordering uses an `order` field
 
-**Decision:** Each block has an `order` field — its position within its goal.
+**Decision:** Each block has an `order` field — its position within its goal. `order` is the primary sort for the goal view. `assignedDate` is a separate, independent fact that determines which day the block appears in Today's View.
 
-**Reason:** Paper v1 had S.no as an explicit column. By Decision 1 (paper is the reference), this justifies including `order` now, not as a "just-in-case" hook. It also makes future cycle migration easy: when cycles arrive, `schemaVersion` lets us compute dates from `order`.
+**Reason:**
+- Paper v1 had S.no as an explicit column, separate from Date. The cycle version made order primary and derived dates. The same relationship carries into the app.
+- If dates sorted the goal view, rescheduling a missed block would reshuffle the sequence. With order-primary, a missed Unit 2 moved to tomorrow still sits before Unit 3 in the goal.
+- It makes the MVP compatible with future cycles (cycles derive dates from order + minimum).
+
+**Mechanics:**
+- New blocks get `order` = highest existing `order` in that goal + 1.
+- `order` is renumbered contiguously within a goal only when the user reorders.
+- Gaps allowed after a delete.
+- **`order` and `assignedDate` are independent. No invariant exists between them.** Do not write code that compares them.
+
+**Not in MVP:** A sort toggle in the goal view. Paper had one ordering; the second sort goes to `MVP_NEXT.md`.
 
 ---
 
@@ -124,4 +137,66 @@ These are defaults for the first code implementation. Revisit after launch.
 
 **Kept:** `createdAt` and `completedAt`. Timestamps cannot be backfilled; future stats depend on them.
 
-*Note: this reverses a field from the original MVP_MUST. Flag in your head — if category turns out to be needed for filtering goals, it's a one-line addition later.*
+*Note: this reverses a field from the original MVP_MUST. If category turns out to be needed for filtering goals, it's a one-line addition later.*
+
+---
+
+## Decision 12
+
+**Decision:** Deleting a goal deletes its blocks, When a user deletes a goal, all blocks belonging to that goal are deleted too, after a confirmation dialog. Blocks cannot exist without a goal in the MVP.
+
+**Reason:** Paper "crossed out the pages" — the goal and its blocks went together. Confirmation prevents accidental loss. Orphan blocks add a UI decision (where do they show?) that isn't worth solving for MVP.
+
+---
+
+## Decision 13 — Data durability
+
+**Decision:** The MVP includes a durability stack built on top of localStorage. The stack ships in two tiers.
+
+**Reason:** This app's core value is irreplaceable user effort. Losing data costs the user hours of planning work. localStorage alone is not sufficient.
+
+### Tier 1 — Ships in MVP
+
+| Option | Effort | Protects against |
+|--------|--------|------------------|
+| Export / import file | ~3h | Clearing data, new phone, lost device |
+| Share sheet for export | ~1h | Backups lost in Downloads folder nobody opens |
+| Persistent storage request | ~30 min | Browser evicting data (request, not guarantee) |
+| Add-to-home-screen note + first-run note (text only) | ~20 min | Safari's 7-day cleanup of browsing data; users not knowing data lives on their phone |
+
+### Tier 2 — Ships in MVP if schedule allows, else post-MVP
+
+| Option | Effort | Protects against |
+|--------|--------|------------------|
+| Backup reminder banner | ~1h | Forgetting to back up |
+| Safety snapshot (previous state kept before import and goal delete) | ~1.5h | Your own bugs and mistakes |
+
+### Why export is not "automatic"
+
+Browsers cannot write files silently. "Automatic backup" means **automatically prepared, one tap to save.** The share sheet makes this two taps: generate → send to WhatsApp/email/Drive. On phones, this is the difference between backups that exist and backups that don't.
+
+### Cut rule
+
+At the end of week 2, if the build is behind: Tier 2 slips to post-MVP. Tier 1 doesn't.
+
+---
+
+## Decision 14 — Settings Tab
+
+**Decision:** Navigation is three tabs — Today's View (default), Goals & Blocks, Settings. Settings holds backup/export, import, FAQ, and app notes.
+
+---
+
+## Decision 15 — Reorder mechanics
+
+**Decision:** Users reorder blocks within a goal using up/down buttons that swap a block with its neighbor. Drag-and-drop is post-MVP.
+
+**Reason:**
+- Up/down works reliably on all phones; drag-and-drop is finicky on mobile and harder to build.
+- Reordering is a primitive the user composes with — it belongs in MVP per the vision.
+- Up/down buttons are ~1.5h of work; drag-and-drop is ~3h.
+
+**Mechanics:**
+- When the user taps ↑ on a block, that block swaps `order` with the block immediately above it in the same goal.
+- Renumber contiguously after each swap to keep `order` tidy.
+- Reorder does not change `assignedDate`. The two fields are independent.

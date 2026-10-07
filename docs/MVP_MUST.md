@@ -45,7 +45,6 @@
 
 **Properties:**
 - Title (required)
-- Subject/Category (optional)
 - Edit/Delete buttons
 
 **User Experience:**
@@ -85,8 +84,8 @@
 **Concept:** The main screen — shows tasks assigned to today's date
 
 **Properties:**
-- Shows: Block Title, description, Estimated Minutes
-- Blocks are grouped by the Group the belong in
+- Shows: Block Title, description, order
+- Blocks are grouped by Goal they belong in
 
 **User Experience:**
 - This is the DEFAULT screen when user opens the app
@@ -122,8 +121,8 @@
 **Concept:** Everything user creates stays saved even after closing the browser
 
 **Properties:**
-- Goals save (title)
-- Blocks save (title, description, assigned date, order, completion status)
+- Goals save (title, createdAt)
+- Blocks save (title, description, assignedDate, order, isCompleted, completedAt, createdAt)
 - Data persists across browser sessions
 
 **User Experience:**
@@ -144,6 +143,7 @@
 **User Experience:**
 - "Today's view" tab (default) — shows today's tasks
 - "Organizer" tab — for organizing Goals and Blocks
+- "Settings" tab — for other stuff
 
 **Questions for later:**
 - What about past dates? Can the user view them?
@@ -169,3 +169,14 @@
 ### Note(Oct 6)
 
 The MVP is the paper-system v1 — dated blocks, goals, Today's View, tick-off, progress %, manual reschedule. The vision (utility platform with user-composed primitives) is documented in `DECISIONS.md` and does not change MVP scope. `estimatedMinutes` and `category` are cut from MVP (see DECISIONS.md #11). `order` is added. `assignedDate` is required. `targetDate` is out.
+
+---
+
+## Scope Lock (7 Oct 2026)
+
+- `assignedDate` is required per block.
+- `order` is added per block (matches paper's S.no column).
+- `estimatedMinutes` and `category` are cut from MVP.
+- `targetDate` is cut from MVP.
+- Rollover is manual — missed blocks stay on their original date until user reschedules.
+- See `docs/DECISIONS.md` for reasoning.
