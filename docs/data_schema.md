@@ -9,18 +9,18 @@ The contract between the app's logic and its storage. Every function reads from 
 
 ## Storage
 
-Three localStorage keys, all managed only by the data adapter.
+The data adapter manages these localStorage keys. `studyPlanner_prev` is Tier 2 — only if built.
 
 | Key | Purpose | Contains |
 |-----|---------|----------|
 | `studyPlanner` | The data bundle | `{ schemaVersion, goals, blocks }` |
 | `studyPlanner_meta` | Device-specific state | `{ lastBackupAt, reminderDismissedUntil }` |
-| `studyPlanner_prev` | Safety snapshot | Previous state, kept before import and before goal deletion |
+| `studyPlanner_prev` | Safety snapshot (Tier 2 — only if built) | Previous state, kept before import and before goal deletion |
 
-**Why three keys:**
+**Why these keys:**
 - `studyPlanner` — the user's data
 - `studyPlanner_meta` — device state. Doesn't survive a new phone. So it can't live inside the export file (otherwise importing on a new phone would silently transfer another device's reminder timestamp).
-- `studyPlanner_prev` — protects against your own bugs: bad imports, accidental goal deletes, migration mistakes. Lives in the same browser, so it doesn't protect against clearing data.
+- `studyPlanner_prev` — Tier 2, only if built. Protects against your own bugs: bad imports, accidental goal deletes, migration mistakes. Lives in the same browser, so it doesn't protect against clearing data.
 
 ---
 
@@ -105,6 +105,21 @@ A block is one small, actionable task. Every block belongs to a goal.
 
 Save the entire `plannerData` object on every mutation (create goal, edit block, complete block, delete, etc.). This is a small data set; the cost of one `setItem` call is negligible.
 
+To prevent overwriting newer data, the data adapter maintains a `saveLocked` flag. `saveAll` must check that flag before any write and refuse to save (returning `false` or throwing) while locked. No caller may bypass the lock. A locked save must never write or replace the current data.
+
+---
+
+## Required-Field Repair Rules
+
+These rules are the single source of truth for import and load validation:
+
+- If a goal is missing `id` or `title`, drop that goal only.
+- If a block is missing `title`, `goalId`, or `assignedDate`, drop that block only.
+- Apply defaults for every other missing field, including `createdAt`, `order`, `isCompleted`, `completedAt`, and `description`.
+- Dropping one record must not cause another record to be dropped. A missing defaulted field is repaired, not a reason to destroy the record.
+
+Tell the user how many records were dropped. The existing `goalId` validation still drops blocks that reference a goal that no longer exists.
+
 ---
 
 ## Import Rules
@@ -117,12 +132,10 @@ The canonical in-memory `plannerData` is defined once as `{ schemaVersion, goals
 2. **Check `app === "study-planner"`.** Reject anything else with a clear message.
 3. **Migrate older versions before validation.** If `bundle.schemaVersion` is older than the app's current version, call `migrate(bundle)` before validating or normalizing the imported data. `migrate(bundle)` must return the canonical `plannerData` shape, with each older-version field migrated to the current schema and no raw legacy values retained.
 4. **Check `schemaVersion`.** If it's newer than the app's version, reject — otherwise old code silently mangles new data.
-5. **Validate required fields and apply defaults.** Never trust the file's contents.
+5. **Validate required fields and apply defaults.** Never trust the file's contents. Apply the Required-Field Repair Rules above.
 6. **Drop blocks whose `goalId` doesn't exist.** Warn the user how many were dropped.
 7. **Confirm with counts before replacing:** "This replaces your 3 goals and 40 blocks with 5 goals and 80 blocks from the backup dated Oct 7." Counts make accidental overwrites obvious.
-8. **Take a safety snapshot first.** Write the current state to `studyPlanner_prev` before replacing, so an accidental import can be undone.
-
-**Required fields without defaults:** If a goal is missing `id`, `title`, or `createdAt`, drop the goal and its blocks. If a block is missing `id`, `goalId`, `title`, `assignedDate`, `order`, `isCompleted`, or `createdAt`, drop the block. Tell the user how many records were dropped in both cases.
+8. **Tier 2 — only if built.** Take a safety snapshot first. Write the current state to `studyPlanner_prev` before replacing, so an accidental import can be undone.
 
 ---
 
@@ -134,13 +147,13 @@ The canonical in-memory `plannerData` is defined once as `{ schemaVersion, goals
 
 - If key exists but JSON.parse fails → corrupted data. Log a warning, clear the key, start fresh (same self-healing pattern as Driver Calculator).
 
-- If parsed successfully → for each goal and block, apply defaults for any missing fields (using the Default column above).
+- If parsed successfully → for each goal and block, apply defaults for any missing fields (using the Default column above) and apply the Required-Field Repair Rules above.
 
 - If `schemaVersion` is missing → assume 1.
 
 - If `schemaVersion` is greater than the app's current version → the data was created by a newer version of the app. **Do not load it. Show a message: "This backup was created by a newer version of the app. Please update."** Do not save over it either. Refusing to touch newer data is safer than silently downgrading it.
 
-**Required fields without defaults:** If a goal is missing `id`, `title`, or `createdAt`, drop the goal and its blocks. If a block is missing `id`, `goalId`, `title`, `assignedDate`, `order`, `isCompleted`, or `createdAt`, drop the block. Tell the user how many records were dropped in both cases.
+The existing `goalId` validation still drops blocks that reference a goal that no longer exists.
 
 ---
 
