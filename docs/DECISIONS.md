@@ -14,7 +14,7 @@ Every decision here has a reason. If the reason changes, the decision can change
 - Copy the behavior, not the medium. Paper has affordances the app doesn't (whole-week visibility, deliberate erasing, physical presence). Translate those where relevant.
 - It's evidence from one person. Fine for an MVP built for personal use. Not proof about other users.
 
-**Exception:** Decisions 1 (paper is the reference) does not apply to *invisible* fields — timestamps (`createdAt`, `completedAt`) and technical fields (`schemaVersion`). These exist for future functionality and cannot be backfilled later, so they're allowed even when paper was silent on them.
+**Exception:** Decision 1 (paper is the reference) does not apply to *invisible* fields — timestamps (`createdAt`, `completedAt`) and technical fields (`schemaVersion`). These exist for future functionality and cannot be backfilled later, so they're allowed even when paper was silent on them.
 
 ---
 
@@ -46,11 +46,14 @@ Every decision here has a reason. If the reason changes, the decision can change
 
 ---
 
-## Decision 4 — `assignedDate` is required in the MVP
+## Decision 4 — Blocks can be created without a date (supersedes old Decision 4)
 
-**Decision:** Every block must have an `assignedDate`.
+**Decision:** `assignedDate` is optional. Blocks without it are called "unscheduled." They appear in the Organizer (goal detail), not in Today's View.
 
-**Reason:** Paper v1 required a date for every block. The cycle version derived dates, but that's a post-MVP concept.
+**Reason:**
+- Defaulting to "today" bloats Today's View when the user batch-creates blocks without firm dates in mind.
+- Allowing blank supports a passive drafting workflow: create blocks first, schedule later.
+- Blocks without a date are still useful — they live in the goal until the user assigns them.
 
 ---
 
@@ -146,7 +149,7 @@ These are defaults for the first code implementation. Revisit after launch.
 
 ## Decision 12 — Deleting a goal deletes its blocks
 
-**Decision:** Deleting a goal deletes its blocks, When a user deletes a goal, all blocks belonging to that goal are deleted too, after a confirmation dialog. Blocks cannot exist without a goal in the MVP.
+**Decision:** Deleting a goal deletes its blocks. When a user deletes a goal, all blocks belonging to that goal are deleted too, after a confirmation dialog. Blocks cannot exist without a goal in the MVP.
 
 **Reason:** Paper "crossed out the pages" — the goal and its blocks went together. Confirmation prevents accidental loss. Orphan blocks add a UI decision (where do they show?) that isn't worth solving for MVP.
 
@@ -184,11 +187,19 @@ At the end of week 2, if the build is behind: Tier 2 slips to post-MVP. Tier 1 d
 
 ---
 
-## Decision 14 — Settings Tab
+## Decision 14 (Revised) — Hamburger Drawer Navigation
 
-**Decision:** Navigation is three tabs — Today's View (default), Goals & Blocks, Settings. Settings holds backup/export, import, FAQ, and app notes.
+**Decision:** Primary navigation is a hamburger menu icon in the top-left of every screen. Tapping it slides a drawer ~70% from the left, showing:
+- Today's Tasks
+- Organizer
+- Settings
 
-**Reason:** Backup/import/FAQ are utility features that don't belong in the daily-use screens (Today's View, Goals & Blocks). Keeping them in a separate tab keeps the main flow clean.
+**Reason:**
+- The Calculator's fixed 3-tab layout assumes a small, stable set of destinations. This app will grow.
+- A drawer lets us add tabs without redesigning the navigation.
+- It matches common patterns (Slack, Gmail, Google apps).
+
+**Tradeoff:** Lower discoverability than a fixed tab bar. Mitigation: first-run tooltip or a visible "Today" label near the hamburger on the initial screen.
 
 ---
 
@@ -205,3 +216,17 @@ At the end of week 2, if the build is behind: Tier 2 slips to post-MVP. Tier 1 d
 - When the user taps ↑ on a block, that block swaps `order` with the block immediately above it in the same goal.
 - Renumber contiguously after each swap to keep `order` tidy.
 - Reorder does not change `assignedDate`. The two fields are independent.
+
+## Decision 16 — "Task" is the user-facing word for blocks
+
+**Decision:** The schema and code call them "blocks." The UI calls them "tasks."
+
+**Reason:** "Block" is a developer term. Users understand "task" instantly. Keeping a separate term for internal use means we can rename the user-facing word without touching the schema.
+
+## Decision 17 — Assigned date is nullable (supersedes Decision 4)
+
+**Decision:** `assignedDate` may be `null`. Blocks without a date are called "unscheduled." They appear only in the Organizer, not in Today's View.
+
+**Reason:** Decision 4 was written when the MVP required a date per block. Paper's system allows creating blocks first and assigning dates later. This revision restores that workflow, which supports passive drafting.
+
+**Supersedes:** Decision 4's original "assignedDate required" language.

@@ -15,12 +15,29 @@ The data adapter manages these localStorage keys. `studyPlanner_prev` is Tier 2 
 |-----|---------|----------|
 | `studyPlanner` | The data bundle | `{ schemaVersion, goals, blocks }` |
 | `studyPlanner_meta` | Device-specific state | `{ lastBackupAt, reminderDismissedUntil }` |
-| `studyPlanner_prev` | Safety snapshot (Tier 2 — only if built) | Previous state, kept before import and before goal deletion |
+| `studyPlanner_prev` | Safety snapshot (Tier 2 — only if built) (Tier 2 — safe to skip if schedule tight) | Previous state, kept before import and before goal deletion |
 
 **Why these keys:**
 - `studyPlanner` — the user's data
 - `studyPlanner_meta` — device state. Doesn't survive a new phone. So it can't live inside the export file (otherwise importing on a new phone would silently transfer another device's reminder timestamp).
 - `studyPlanner_prev` — Tier 2, only if built. Protects against your own bugs: bad imports, accidental goal deletes, migration mistakes. Lives in the same browser, so it doesn't protect against clearing data.
+
+---
+
+## Validation Rule — Required Fields
+
+This rule applies to both `loadAll()` and `importAll()`.
+
+**A record is dropped if it is missing a field that has no default:**
+
+- **Goal:** drop if missing `id` or `title`.
+- **Block:** drop if missing `title` or `goalId`. `assignedDate` may be `null` — blocks without a date are "unscheduled" and valid.
+
+Every other field takes its default (see Entity tables).
+
+**When records are dropped:** tell the user how many goals and how many blocks were dropped, and why. Never silently discard data.
+
+**Cascade rule:** if a goal is dropped, its blocks are dropped too (they would become orphans).
 
 ---
 
@@ -67,7 +84,7 @@ A block is one small, actionable task. Every block belongs to a goal.
 | `goalId` | string | yes | — | system (from parent goal) | yes |
 | `title` | string | yes | — | user | yes |
 | `description` | string | no | `""` | user | yes |
-| `assignedDate` | string (`YYYY-MM-DD`) | yes | — | user | yes |
+| `assignedDate` | string (`YYYY-MM-DD`) | no | `null` | user | yes |
 | `order` | integer | yes | highest existing in goal + 1 | system | yes |
 | `isCompleted` | boolean | yes | `false` | user (via checkbox) | yes |
 | `completedAt` | string (ISO datetime) \| null | yes | `null` | system | yes |
@@ -109,19 +126,6 @@ To prevent overwriting newer data, the data adapter maintains a `saveLocked` fla
 
 ---
 
-## Required-Field Repair Rules
-
-These rules are the single source of truth for import and load validation:
-
-- If a goal is missing `id` or `title`, drop that goal only.
-- If a block is missing `title`, `goalId`, or `assignedDate`, drop that block only.
-- Apply defaults for every other missing field, including `createdAt`, `order`, `isCompleted`, `completedAt`, and `description`.
-- Dropping one record must not cause another record to be dropped. A missing defaulted field is repaired, not a reason to destroy the record.
-
-Tell the user how many records were dropped. The existing `goalId` validation still drops blocks that reference a goal that no longer exists.
-
----
-
 ## Import Rules
 
 Import goes through `importAll(bundle)` in the data layer. Screens only call it.
@@ -135,7 +139,9 @@ The canonical in-memory `plannerData` is defined once as `{ schemaVersion, goals
 5. **Validate required fields and apply defaults.** Never trust the file's contents. Apply the Required-Field Repair Rules above.
 6. **Drop blocks whose `goalId` doesn't exist.** Warn the user how many were dropped.
 7. **Confirm with counts before replacing:** "This replaces your 3 goals and 40 blocks with 5 goals and 80 blocks from the backup dated Oct 7." Counts make accidental overwrites obvious.
-8. **Tier 2 — only if built.** Take a safety snapshot first. Write the current state to `studyPlanner_prev` before replacing, so an accidental import can be undone.
+8. **Tier 2 — only if built.** Take a safety snapshot first. (Tier 2 — see Decision 13) Write the current state to `studyPlanner_prev` before replacing, so an accidental import can be undone.
+
+See "Validation Rule — Required Fields" above.
 
 ---
 
@@ -149,11 +155,16 @@ The canonical in-memory `plannerData` is defined once as `{ schemaVersion, goals
 
 - If parsed successfully → for each goal and block, apply defaults for any missing fields (using the Default column above) and apply the Required-Field Repair Rules above.
 
+- If a block has no `assignedDate` (or it's `null`), it's "unscheduled" and does not appear in Today's View. It appears in the Organizer under its goal.
+
 - If `schemaVersion` is missing → assume 1.
 
 - If `schemaVersion` is greater than the app's current version → the data was created by a newer version of the app. **Do not load it. Show a message: "This backup was created by a newer version of the app. Please update."** Do not save over it either. Refusing to touch newer data is safer than silently downgrading it.
+    - **Mechanism:** the storage adapter exposes a `locked` flag. When `loadAll()` encounters a `schemaVersion` newer than the app supports, it sets `locked = true`. While `locked` is true, `saveAll()` refuses to write and logs a warning. The app shows a persistent banner: "This data was created by a newer version. Updates are disabled to protect your data."
 
 The existing `goalId` validation still drops blocks that reference a goal that no longer exists.
+
+See "Validation Rule — Required Fields" above.
 
 ---
 

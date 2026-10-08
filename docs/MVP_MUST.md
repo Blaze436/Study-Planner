@@ -63,7 +63,7 @@
 **Properties:**
 - Block Title (required)
 - Description (optional)
-- Assigned Date (calendar picker, VERY IMPORTANT!)
+- Assigned Date (optional calendar picker). Blocks without a date are "unscheduled" and appear only in the Organizer.
 - Link to parent Goal (goalId)
 - Can Edit/Re-schedule/Delete
 
@@ -201,13 +201,13 @@
 
 ### Note(Oct 6)
 
-The MVP is the paper-system v1 — dated blocks, goals, Today's View, tick-off, progress %, manual reschedule. The vision (utility platform with user-composed primitives) is documented in `DECISIONS.md` and does not change MVP scope. `estimatedMinutes` and `category` are cut from MVP (see DECISIONS.md #11). `order` is added. `assignedDate` is required. `targetDate` is out.
+The MVP is the paper-system v1 — dated blocks, goals, Today's View, tick-off, progress %, manual reschedule. The vision (utility platform with user-composed primitives) is documented in `DECISIONS.md` and does not change MVP scope. `estimatedMinutes` and `category` are cut from MVP (see DECISIONS.md #11). `order` is added. `assignedDate` is optional (unscheduled blocks allowed). `targetDate` is out.
 
 ---
 
-## Scope Lock (7 Oct 2026)
+## Scope Lock (8 Oct 2026)
 
-- `assignedDate` is required per block.
+- Assigned Date (optional calendar picker). Blocks without a date are "unscheduled" and appear only in the Organizer.
 - `order` is added per block (matches paper's S.no column).
 - `estimatedMinutes` and `category` are cut from MVP.
 - `targetDate` is cut from MVP.

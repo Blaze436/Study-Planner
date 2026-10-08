@@ -123,3 +123,67 @@ Architect flagged inconsistencies after commit. Fixed:
 - Privacy FAQ was falsely claiming no data is sent
 - POST_DEV counts now honest (external drivers: 0)
 - Various small formatting/wording fixes
+
+## Day 3 — Live App Polish + Schema Completion + Cut Order
+**Date:** 8 October 2026
+**Time spent:** ~5 hours (Driver 1.5h + Planner 3.5h)
+
+### What I did
+
+**Driver app:**
+- Fixed privacy wording in `texts_en.md` — now correctly states that settings stay on device but anonymous usage data goes to Google Analytics
+- Added all 9 field hints below their inputs (Details tab: 4; Calculate tab: 5)
+- Built FAQ in Settings using native `<details>` / `<summary>` — 11 entries, zero JavaScript needed
+- Added share-button UTM rule to `utm_links.md` (`share_button` medium, `in_app` campaign)
+- Created `groups.md` to track joined groups and their promotion rules
+- Joined ~23 Facebook driver groups across Karachi, Lahore, Islamabad, and Pakistan-wide
+- Left initial comments in approved groups to build credibility before launch (no link, no app mention)
+- Verified FAQ behavior on phone — no sideways scroll, native expand/collapse works
+- Updated `POST_DEV.md` with group status snapshot and launch strategy
+
+**Study Planner:**
+- **Schema cleanup:** Rewrote the Required-Field Rule (goal drops on missing `id`/`title`; block drops on missing `title`/`goalId`; `assignedDate` is now optional). Defined `saveLocked` flag mechanism for the "do not overwrite newer data" rule. Marked Import Rule 8 and `studyPlanner_prev` as Tier 2.
+- **Decisions added:** Revised Decision 4 (assignedDate now optional — reverses original), Revised Decision 14 (hamburger drawer navigation, not fixed tabs), added Decision 17 ("Task" is the user-facing word for blocks)
+- **MVP_MUST.md fixes:** Fixed the Oct 6 note contradiction (`assignedDate` required → optional). Confirmed Scope Lock reflects current state.
+- **OPEN_QUESTIONS.md:** Cleared all blocking items. Remaining: app name, cycle/date mechanic, undo, editing completed blocks
+- **DECISIONS.md encoding:** Noticed `‚Äî` substitution for `—` — noted for future fix
+- **Annotated wireframes:** Reviewed original hand-drawn sketches against current decisions. Marked out-of-date elements (Organizer → Goals & Blocks, category/time cut, sorted by `order` not date, "Overdue" → "Missed"). Confirmed full-screen forms, no confirmation for block deletes, edit-form-only reschedule, simple empty state.
+- **Generated AI-rendered wireframe references** for portfolio documentation — three images: New Task form, Organizer (goals list), Today's Tasks (with missed section, completed styling, floating +). Noted AI hallucinated a "General" group that doesn't exist in MVP — to be excluded from coding reference.
+- **Decision 16 recorded:** UI defaults — full-screen block form, no block-delete confirmation, edit-form-only reschedule, simple empty state, first-run note at top of Today's Tasks
+- **Decision 17 recorded:** "Task" is the user-facing word; "block" stays internal to schema
+- **Decision 18 recorded:** `assignedDate` optional — supersedes Decision 4
+- **FUNCTION_LIST.md written:** Full data-layer API surface — `date.js` (2 functions), `storage.js` (8 functions), `data.js` (8 mutations + 6 derived getters), `screens.js` (6 render functions + event wiring). This is the contract for the entire build.
+- **Project skeleton created:** `css/styles.css`, `js/date.js`, `js/storage.js`, `js/data.js`, `js/screens.js`, `js/main.js`, plus `index.html` referencing them in load order
+- **Cut order decided:** If behind by Oct 19 checkpoint: backup reminder banner → safety snapshot → share sheet → reorder buttons → visual polish
+
+### What worked
+- Writing the FUNCTION_LIST.md before coding clarified several ambiguities I hadn't noticed (e.g., updateBlock never touches `order`, deleteBlock doesn't renumber)
+- The `<details>` / `<summary>` approach for the FAQ was the right call — zero JS, works on every phone
+- Reviewing the original sketches against decisions caught a "General" group concept that had silently crept in but wasn't in the schema
+- The AI-generated wireframes helped visualize the target look — good for portfolio documentation
+- Discovering the assignedDate-required question through the sketch review was important — it forced a real decision instead of inheriting a default
+
+### What I learned
+- **The paper system is a spec, not a suggestion.** Decision 4's reversal (assignedDate optional) came directly from noticing that my sketches defaulted to "today" but my paper system didn't. This is Decision 1 working as intended.
+- **Naming matters twice.** "Blocks" for the schema, "Tasks" for the user. Keeping them separate means future UI renames don't touch the schema. Small decision, big flexibility.
+- **Validation rules must be checked in two places.** Rule 5 in Import and the block line in Load Rules both needed updating for assignedDate nullable. Easy to miss one.
+- **HTML structure isn't optional.** I initially wrote `index.html` with only script tags and no doctype/head/body. Browsers would load it in "quirks mode" and behave unpredictably. Always start with the full skeleton.
+- **Filename mismatch fails silently.** `data_local.js` vs `date.js` — the browser would just 404 the missing file and every date function would break at runtime. Checking the console for load confirmations catches this.
+
+### What confused me
+- The distinction between "saving" and "locking" for newer schema versions. The mechanism (a `saveLocked` flag) wasn't obvious until I wrote it into the schema.
+- Which decisions belong in `DECISIONS.md` vs `OPEN_QUESTIONS.md`. Resolved by rule: decided = DECISIONS; undecided = OPEN_QUESTIONS. Resolved items move from one to the other.
+- Whether to redraw or annotate the sketches — decided annotate because it shows iteration, which is better portfolio documentation.
+
+### Design decisions locked in (references)
+- **Decision 4 (revised):** assignedDate optional — blocks can exist unscheduled
+- **Decision 14 (revised):** Hamburger drawer navigation
+- **Decision 17 (was 16):** "Task" is the user-facing term
+- **Decision 18:** Assigned date nullable — direct consequence of Decision 1 (paper is the reference)
+- **Cut order:** banner → snapshot → share → reorder → polish
+- **Checkpoint:** Oct 19 — Goals, Blocks, Today's View must work by then, or cuts start
+
+### What's next
+- **Day 4 (Oct 9):** First coding day. Write `getTodayString()` and `formatDateForDisplay()` in `date.js`. Write `loadAll()` and `saveAll()` in `storage.js`. Test round-trip with a dummy object in DevTools. Add Decision 17/18 references to `DECISIONS.md` if not already there.
+- **Driver app parallel:** Urdu FAQ + bilingual hints + Help link on Calculate screen
+- **Watch:** Don't re-scope. If a new feature idea arises, it goes in `MVP_IDEAS.md`.
