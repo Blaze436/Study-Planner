@@ -14,11 +14,8 @@ The data adapter manages these localStorage keys. `studyPlanner_prev` is Tier 2 
 | Key | Purpose | Contains |
 |-----|---------|----------|
 | `studyPlanner` | The data bundle | `{ schemaVersion, goals, blocks }` |
-| `studyPlanner_meta` | Device-specific state | `{ lastBackupAt, reminderDismissedUntil }` |
 | `studyPlanner_meta` | Device-specific state | `{ lastBackupAt, reminderDismissedUntil, firstRunDismissed }` |
 | `studyPlanner_prev` | Safety snapshot (Tier 2 — only if built) | Previous state, kept before import and before goal deletion |
-5. **Validate required fields and apply defaults.** Never trust the file's contents. Apply the Validation Rule — Required Fields above.
-If parsed successfully → for each goal and block, apply defaults for any missing fields (using the Default column above) and apply the Validation Rule — Required Fields above.
 
 **Why these keys:**
 - `studyPlanner` — the user's data
@@ -139,7 +136,7 @@ The canonical in-memory `plannerData` is defined once as `{ schemaVersion, goals
 2. **Check `app === "study-planner"`.** Reject anything else with a clear message.
 3. **Migrate older versions before validation.** If `bundle.schemaVersion` is older than the app's current version, call `migrate(bundle)` before validating or normalizing the imported data. `migrate(bundle)` must return the canonical `plannerData` shape, with each older-version field migrated to the current schema and no raw legacy values retained.
 4. **Check `schemaVersion`.** If it's newer than the app's version, reject — otherwise old code silently mangles new data.
-5. **Validate required fields and apply defaults.** Never trust the file's contents. Apply the Required-Field Repair Rules above.
+5. **Validate required fields and apply defaults.** Never trust the file's contents. Apply the Validation Rule — Required Fields above.
 6. **Drop blocks whose `goalId` doesn't exist.** Warn the user how many were dropped.
 7. **Confirm with counts before replacing:** "This replaces your 3 goals and 40 blocks with 5 goals and 80 blocks from the backup dated Oct 7." Counts make accidental overwrites obvious.
 8. **Tier 2 — only if built.** Take a safety snapshot first. (Tier 2 — see Decision 13) Write the current state to `studyPlanner_prev` before replacing, so an accidental import can be undone.
@@ -156,7 +153,7 @@ See "Validation Rule — Required Fields" above.
 
 - If key exists but JSON.parse fails → corrupted data. Log a warning, clear the key, start fresh (same self-healing pattern as Driver Calculator).
 
-- If parsed successfully → for each goal and block, apply defaults for any missing fields (using the Default column above) and apply the Required-Field Repair Rules above.
+- If parsed successfully → for each goal and block, apply defaults for any missing fields (using the Default column above) and apply the Validation Rule — Required Fields above.
 
 - If a block has no `assignedDate` (or it's `null`), it's "unscheduled" and does not appear in Today's View. It appears in the Organizer under its goal.
 
