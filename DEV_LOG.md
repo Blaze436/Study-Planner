@@ -59,6 +59,8 @@
 5. Render by looping over data
 6. Loading tolerates missing or extra fields
 
+---
+
 ## Day 2 — Schema Design & Durability Layer
 **Date:** 7 October 2026
 **Time spent:** ~6 hours (Driver 1h + Planner 4h + Post-commit cleanup 1h)
@@ -124,6 +126,8 @@ Architect flagged inconsistencies after commit. Fixed:
 - POST_DEV counts now honest (external drivers: 0)
 - Various small formatting/wording fixes
 
+---
+
 ## Day 3 — Live App Polish + Schema Completion + Cut Order
 **Date:** 8 October 2026
 **Time spent:** ~5 hours (Driver 1.5h + Planner 3.5h)
@@ -184,3 +188,53 @@ Architect flagged inconsistencies after commit. Fixed:
 - **Checkpoint:** Oct 19 — Goals, Blocks, Today's View must work by then, or cuts start
 
 **Note (Oct 9):** The FUNCTION_LIST.md was drafted with AI assistance. I reviewed the structure and reasoning with the Architect, but I don't yet understand every function at the implementation level. I'll learn each one as I code it — same method for the entire build. Honest labeling matters more than pretending.
+
+---
+
+## Day 4 — First Coding Slice: Add Goal + Persistence
+**Date:** 9 October 2026
+**Time spent:** ~5 hours (Driver 1.5h + Planner 3.5h)
+
+### What I did
+
+**Driver app:**
+- Added ⓘ hint toggles next to all 9 field labels (Details + Calculate screens)
+- Built the Urdu FAQ section in Settings using `lang="ur" dir="rtl"` — all 11 entries
+- Created `texts_ur.md` with the complete Urdu translation
+- Decision: skipped the Help link on Calculate screen — bottom nav already provides one-tap access to Settings
+
+**Study Planner — first real code:**
+- Wrote `getTodayString()` and `formatDateForDisplay()` in `date.js` (local time, never UTC)
+- Wrote `loadAll()` and `saveAll()` in `storage.js` — self-healing on corrupted data
+- Wrote `generateId()`, `initData()`, `getData()`, `createGoal()`, `getAllGoalsSorted()` in `data.js`
+- Wrote `renderGoalList()` in `screens.js` — uses `textContent`, never `innerHTML`
+- Wrote startup + button wiring in `main.js`
+- Replaced `index.html` with minimal skeleton: input + button + list container
+
+### What worked
+- The full slice works end-to-end: add goal → refresh → still there
+- All 7 verification tests pass
+- Console shows all 5 files loading in correct order
+- LocalStorage contains correct JSON with schemaVersion, goals array
+- `<b>test</b>` renders as plain text — XSS protection confirmed
+- Empty title rejected with alert
+
+### What I learned
+- **The state-to-render loop in practice:** user action → data-layer function → mutate in-memory `plannerData` → `saveAll()` → re-render from data. No direct DOM-to-data communication.
+- **`textContent` over `innerHTML`** is non-negotiable. `innerHTML` would execute user-provided HTML/JS — a real security issue since backups can be imported from files.
+- **Fresh empty objects:** `makeEmptyData()` returns a new object each call, not a shared one. Avoids state leaking between calls.
+- **Sorting a copy:** `[...data.goals].sort(...)` — spreading first so the original array isn't mutated by `.sort()`.
+- **Local date function vs. UTC:** `getTodayString()` uses `getFullYear()`, `getMonth() + 1`, `getDate()` — never `toISOString()`.
+
+### What confused me
+- The "1 issue" in the browser console — turned out to be a favicon 404, not a bug.
+- Had to remember to remove the test `console.log("initData:...")` line that also re-called `initData()`.
+
+### Design decisions confirmed
+- All six foundational rules (from Decision 3) hold:
+  1. ✅ Data logic separate from screens — searched `date.js`, `storage.js`, `data.js` for `document.` — empty
+  2. ✅ Store facts, calculate derived — only createdAt stored on goals, no derived values
+  3. ✅ Flat collections + schemaVersion
+  4. ✅ One date helper, `YYYY-MM-DD`
+  5. ✅ Render by looping
+  6. ✅ Loads tolerate missing fields
