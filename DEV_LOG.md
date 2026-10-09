@@ -193,7 +193,7 @@ Architect flagged inconsistencies after commit. Fixed:
 
 ## Day 4 — First Coding Slice: Add Goal + Persistence
 **Date:** 9 October 2026
-**Time spent:** ~5 hours (Driver 1.5h + Planner 3.5h)
+**Time spent:** ~5 hours (Driver 1.5h + Planner 4.6h)
 
 ### What I did
 
