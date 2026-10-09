@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Study Planner</title>
-    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <h1>Study Planner</h1>
-    <p>Loading...</p>
+
+    <div>
+        <input type="text" id="goalTitleInput" placeholder="New goal title">
+        <button id="addGoalBtn">Add Goal</button>
+    </div>
+
+    <div id="goalList"></div>
 
     <script src="js/date.js"></script>
     <script src="js/storage.js"></script>
