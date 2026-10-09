@@ -15,7 +15,10 @@ The data adapter manages these localStorage keys. `studyPlanner_prev` is Tier 2 
 |-----|---------|----------|
 | `studyPlanner` | The data bundle | `{ schemaVersion, goals, blocks }` |
 | `studyPlanner_meta` | Device-specific state | `{ lastBackupAt, reminderDismissedUntil }` |
-| `studyPlanner_prev` | Safety snapshot (Tier 2 — only if built) (Tier 2 — safe to skip if schedule tight) | Previous state, kept before import and before goal deletion |
+| `studyPlanner_meta` | Device-specific state | `{ lastBackupAt, reminderDismissedUntil, firstRunDismissed }` |
+| `studyPlanner_prev` | Safety snapshot (Tier 2 — only if built) | Previous state, kept before import and before goal deletion |
+5. **Validate required fields and apply defaults.** Never trust the file's contents. Apply the Validation Rule — Required Fields above.
+If parsed successfully → for each goal and block, apply defaults for any missing fields (using the Default column above) and apply the Validation Rule — Required Fields above.
 
 **Why these keys:**
 - `studyPlanner` — the user's data

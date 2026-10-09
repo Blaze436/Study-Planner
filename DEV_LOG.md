@@ -183,7 +183,4 @@ Architect flagged inconsistencies after commit. Fixed:
 - **Cut order:** banner → snapshot → share → reorder → polish
 - **Checkpoint:** Oct 19 — Goals, Blocks, Today's View must work by then, or cuts start
 
-### What's next
-- **Day 4 (Oct 9):** First coding day. Write `getTodayString()` and `formatDateForDisplay()` in `date.js`. Write `loadAll()` and `saveAll()` in `storage.js`. Test round-trip with a dummy object in DevTools. Add Decision 17/18 references to `DECISIONS.md` if not already there.
-- **Driver app parallel:** Urdu FAQ + bilingual hints + Help link on Calculate screen
-- **Watch:** Don't re-scope. If a new feature idea arises, it goes in `MVP_IDEAS.md`.
+**Note (Oct 9):** The FUNCTION_LIST.md was drafted with AI assistance. I reviewed the structure and reasoning with the Architect, but I don't yet understand every function at the implementation level. I'll learn each one as I code it — same method for the entire build. Honest labeling matters more than pretending.

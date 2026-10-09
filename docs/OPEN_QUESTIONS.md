@@ -18,8 +18,6 @@ Questions not yet resolved. Revisit as needed — but not before the MVP ships, 
 
 3. **Undo for accidental completion.** Post-MVP: undo button or brief undo toast. Not in MVP.
 
-4. **Editing completed blocks.** Can a completed block be edited or deleted? Lean: yes, but needs a UI decision.
-
 ---
 
 ## Tasks (not questions)

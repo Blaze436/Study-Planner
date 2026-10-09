@@ -111,11 +111,15 @@ Every decision here has a reason. If the reason changes, the decision can change
 
 ---
 
-## Decision 9 — Missed blocks are visible but not aggressive
+## Decision 9 — Missed tasks appear in a collapsed section
 
-**Decision:** A missed block stays on its original date (Decision 6). It appears in Goals & Blocks with a quiet "missed" label. Today's View shows only a one-line count ("2 missed") linking to Goals & Blocks.
+**Decision:** Missed tasks (past date, not complete) appear in a **collapsible "Missed" section** at the top of Today's View. It's collapsed by default. Each row shows the task's goal and original date. Each row can be rescheduled from within that section.
 
-**Reason:** Paper didn't hide missed blocks — the unticked row sat on a visible page. But paper also didn't punish. This preserves visibility without the anxiety wall of an overdue list.
+**Wording:** Use "Missed," never "Overdue."
+
+**Reason:** Paper didn't hide missed tasks — the unticked row sat on a visible page. But paper also didn't punish. This preserves visibility without the anxiety wall of an overdue list. The section is collapsed to avoid dominating the screen on days with a lot of catch-up.
+
+**Post-MVP option:** A one-line count at the top of Today's View ("2 missed") linking to the Organizer.
 
 ---
 
@@ -217,16 +221,71 @@ At the end of week 2, if the build is behind: Tier 2 slips to post-MVP. Tier 1 d
 - Renumber contiguously after each swap to keep `order` tidy.
 - Reorder does not change `assignedDate`. The two fields are independent.
 
+---
+
 ## Decision 16 — "Task" is the user-facing word for blocks
 
 **Decision:** The schema and code call them "blocks." The UI calls them "tasks."
 
 **Reason:** "Block" is a developer term. Users understand "task" instantly. Keeping a separate term for internal use means we can rename the user-facing word without touching the schema.
 
-## Decision 17 — Assigned date is nullable (supersedes Decision 4)
+---
 
-**Decision:** `assignedDate` may be `null`. Blocks without a date are called "unscheduled." They appear only in the Organizer, not in Today's View.
+## Decision 17 — No default "General" goal; guided empty state
 
-**Reason:** Decision 4 was written when the MVP required a date per block. Paper's system allows creating blocks first and assigning dates later. This revision restores that workflow, which supports passive drafting.
+**Decision:** The app does NOT auto-create a "General" goal on first run. Instead:
+- Empty Today's View shows: "No goals yet. Create your first goal to get started."
+- The `+` button on empty Today's View opens the goal form.
+- Once goals exist, `+` opens the task form with a required goal picker.
+- Inside a goal detail, `+` opens the task form with that goal pre-selected.
 
-**Supersedes:** Decision 4's original "assignedDate required" language.
+**Reason:**
+- No magic data the user didn't create.
+- Guided onboarding teaches the app's core concept (goals come before tasks).
+- Preserves the vision: everything is user-composed.
+
+**Tradeoff:** Slightly more friction on first task. Offset by the empty state clearly directing the user.
+
+---
+
+## Decision 18 — UI defaults
+
+**Task creation:**
+- `+` on Today's View defaults the date to **today**.
+- "Add Task" inside a goal detail defaults the date to **blank** (unscheduled).
+
+**Today's View layout:**
+- Task rows show title (bold) and description (smaller, muted, below title) if present.
+- Date format: "Oct 9, 2026" (from `formatDateForDisplay`).
+- Goal groups are always expanded; only goals with at least one task today appear.
+
+**Task form:**
+- Shows a "Remove date" option when a date is set.
+- The `⋮` Delete option only appears when **editing** an existing task (not creating).
+
+**First-run banner:**
+- Shown at top of Today's Tasks on first launch.
+- Dismissible.
+- Dismissal stored in `studyPlanner_meta.firstRunDismissed = true`.
+
+**State model:**
+- `plannerData` lives in `data.js` as a single variable.
+- `initData()` loads it from storage.
+- `getData()` returns the current in-memory object.
+- All getters take `plannerData` as a parameter (pure).
+- All mutations return `{ success: true, data }` or `{ success: false, error }`.
+
+---
+
+## Decision 19 — Cut order and checkpoint
+
+**Cut order (first to be cut if behind):**
+1. Backup reminder banner (~1h)
+2. Safety snapshot (~1.5h)
+3. Share sheet for export (~1h) — download fallback stays
+4. Reorder buttons (~2h)
+5. Visual polish (always last)
+
+**Checkpoint:** End of **October 19**. If Goals, Tasks, and Today's View aren't working by then, the cut starts. Tier 1 features don't get cut.
+
+**Reason:** Cutting is easier when it's a pre-committed sequence, not an in-the-moment decision.

@@ -1,3 +1,5 @@
+> **Drafted with AI assistance, not yet fully understood by me. Understanding is verified function-by-function as I implement each one.**
+
 ### `date.js` — Local date helpers
 **`getTodayString()`**
 
