@@ -50,10 +50,14 @@ Every decision here has a reason. If the reason changes, the decision can change
 
 **Decision:** `assignedDate` is optional. Blocks without it are called "unscheduled." They appear in the Organizer (goal detail), not in Today's View.
 
+**Explicit exception to Decision 1.** Paper v1 required a date on every block. We're allowing unscheduled blocks anyway, because the cycle model (post-MVP) derives dates from order + minimum. Blocks without dates are compatible with that future.
+
 **Reason:**
 - Defaulting to "today" bloats Today's View when the user batch-creates blocks without firm dates in mind.
 - Allowing blank supports a passive drafting workflow: create blocks first, schedule later.
 - Blocks without a date are still useful — they live in the goal until the user assigns them.
+
+**Supersedes:** The original Decision 4, which required `assignedDate`.
 
 ---
 
@@ -131,8 +135,10 @@ These are defaults for the first code implementation. Revisit after launch.
 - **Today's View grouping:** Grouped by goal (in goal `createdAt` order). Within each group, sorted by `order`.
 - **Editing completed blocks:** Allowed. Same edit action as uncompleted blocks.
 - **Completed tasks in Today's View:** Stay visible with strikethrough and reduced opacity.
-- **Zero-block goal:** Allowed. Shows "No blocks yet" instead of a percentage (avoids division by zero).
-- **Empty Today's View:** Simple message ("No tasks today" + optional preview of upcoming).
+- **Zero-block goal:** Allowed. Shows "No tasks yet" instead of a percentage (avoids division by zero).
+- **Empty Today's View — two states:**
+  - No goals at all: "No goals yet. Create your first goal to get started."
+  - Goals exist but none scheduled today: "No tasks today."
 - **Unticking a completed block:** `isCompleted` → `false`, `completedAt` → `null`.
 
 ---
@@ -192,6 +198,8 @@ At the end of week 2, if the build is behind: Tier 2 slips to post-MVP. Tier 1 d
 ---
 
 ## Decision 14 (Revised) — Hamburger Drawer Navigation
+
+**Supersedes:** The original Decision 14, which specified a fixed 3-tab layout.
 
 **Decision:** Primary navigation is a hamburger menu icon in the top-left of every screen. Tapping it slides a drawer ~70% from the left, showing:
 - Today's Tasks

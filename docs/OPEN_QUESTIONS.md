@@ -18,6 +18,8 @@ Questions not yet resolved. Revisit as needed — but not before the MVP ships, 
 
 3. **Undo for accidental completion.** Post-MVP: undo button or brief undo toast. Not in MVP.
 
+4. **Urdu translation for Study Planner.** Deferred. App is not exclusively for a Pakistani audience. Revisit if user data shows demand.
+
 ---
 
 ## Tasks (not questions)

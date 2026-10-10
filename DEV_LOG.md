@@ -193,7 +193,7 @@ Architect flagged inconsistencies after commit. Fixed:
 
 ## Day 4 — First Coding Slice: Add Goal + Persistence
 **Date:** 9 October 2026
-**Time spent:** ~5 hours (Driver 1.5h + Planner 4.6h)
+**Time spent:** ~6 hours (Driver 1.5h + Planner 4.5h)
 
 ### What I did
 
@@ -238,3 +238,18 @@ Architect flagged inconsistencies after commit. Fixed:
   4. ✅ One date helper, `YYYY-MM-DD`
   5. ✅ Render by looping
   6. ✅ Loads tolerate missing fields
+
+  **Note (Oct 10):** The Day 4 log above was written before I did the Block 0 carryover work. Adding it here so the log stays append-only.
+
+### Block 0 Carryover (Oct 9 evening, ~45 min)
+- Added Decisions 17 (no default "General" goal), 18 (UI defaults), 19 (cut order + checkpoint)
+- Added "Drafted with AI assistance..." honesty line to `FUNCTION_LIST.md`
+- Cleaned up `data_schema.md`: fixed the "Required-Field Repair Rules" naming, removed duplicated `studyPlanner_meta` row, added `firstRunDismissed` to meta key
+- Updated `utm_links.md`: campaign is `launch` for external channels, `in_app` for the share button
+- Synced `texts_en.md` with the live `index.html` (HTML wins where they diverge)
+
+**Written myself vs. explained by tutor/Architect:**
+- **Written myself:** all JS files, HTML edits for hints/FAQ/hint toggles, Urdu translations read and corrected
+- **Explained by Architect:** the concept of "return a fresh empty object each time" and "why spread before sorting"
+
+**Rule 6 (loading tolerates missing fields) — status: PARTIALLY DONE.** Top-level shape only (`goals` and `blocks` are checked with `Array.isArray`). Deep field-level defaulting is deferred to `normalizeData()` in Block 2 of Day 5.

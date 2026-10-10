@@ -52,8 +52,6 @@
 - User clicks "+ New Goal" button
 - After saving, goal appears in "My Goals" list
 
-**Questions for later:**
-
 ---
 
 ### 3. Task Decomposition (Adding Blocks)
@@ -73,8 +71,6 @@
 - Blocks are listed under the Goal
 - User can delete a block before saving
 
-**Questions for later:**
-
 ---
 
 ### 4. Today's View tab (The Core Experience)
@@ -82,16 +78,12 @@
 **Concept:** The main screen — shows tasks assigned to today's date
 
 **Properties:**
-- Shows: Block Title, description, order
-- Blocks are grouped by Goal they belong in
+- Shows: Task title, description, and date
+- Tasks are grouped by the Goal they belong to
 
 **User Experience:**
 - This is the DEFAULT screen when user opens the app
 - User sees everything they planned for TODAY immediately
-
-**Questions for later:**
-- What if there are no tasks for today?
-- Should it show task scheduled for the future?
 
 ---
 
@@ -128,20 +120,16 @@
 - Data saves automatically after every action
 - When user reopens the app, everything is exactly as they left it
 
-**Questions for later:**
-- Do we need cloud backup?
-- What if user clears browser cache?
-
 ---
 
-### 7. Basic Navigation
+### 7. Navigation (Hamburger Drawer)
 
-**Concept:** User can switch between tabs
+**Concept:** A hamburger menu icon in the top-left of every screen opens a slide-out drawer.
 
 **User Experience:**
-- "Today's view" tab (default) — shows today's tasks
-- "Organizer" tab — for organizing Goals and Blocks
-- "Settings" tab — for other stuff
+- Today's Tasks (default)
+- Organizer
+- Settings
 
 **Questions for later:**
 - What about past dates? Can the user view them?
@@ -154,20 +142,22 @@
 
 ---
 
-### 9. Missed Block Visibility
-- Missed blocks (past date, not complete) appear in Goals & Blocks with a quiet "missed" label.
-- Today's View shows a one-line count, e.g. "2 missed", linking to Goals & Blocks.
+### 9. Missed Tasks
 
+- Missed tasks (past date, not complete) appear in a collapsible "Missed" section at the top of Today's View.
+- Collapsed by default.
+- Each row shows the task's goal and original date. Rows can be rescheduled from within the section.
+- Wording: "Missed," never "Overdue."
 ---
 
 ### 10. Settings Tab
-- Export backup (download or share)
+
+- Export backup (download or share sheet)
 - Import backup
 - Request persistent storage
 - Add-to-home-screen note
 - FAQ
 - About
-
 ---
 
 ### 11. Data Durability (Tier 1)
@@ -196,12 +186,7 @@
 - edit/reschedule/delete
 - retain data in browser
 - plan dates ahead
-
----
-
-### Note(Oct 6)
-
-The MVP is the paper-system v1 — dated blocks, goals, Today's View, tick-off, progress %, manual reschedule. The vision (utility platform with user-composed primitives) is documented in `DECISIONS.md` and does not change MVP scope. `estimatedMinutes` and `category` are cut from MVP (see DECISIONS.md #11). `order` is added. `assignedDate` is optional (unscheduled blocks allowed). `targetDate` is out.
+- Export and restore a backup
 
 ---
 
