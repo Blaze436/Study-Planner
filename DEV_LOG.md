@@ -253,3 +253,38 @@ Architect flagged inconsistencies after commit. Fixed:
 - **Explained by Architect:** the concept of "return a fresh empty object each time" and "why spread before sorting"
 
 **Rule 6 (loading tolerates missing fields) — status: PARTIALLY DONE.** Top-level shape only (`goals` and `blocks` are checked with `Array.isArray`). Deep field-level defaulting is deferred to `normalizeData()` in Block 2 of Day 5.
+
+---
+
+## Day 5 — Planner Slice 2: Edit, Delete, Data Hygiene
+**Date:** 10 October 2026
+**Time spent:** ~7 hours total (Driver 1.5h + Planner 5.5h, including debugging detours)
+
+### What I did
+
+**Driver app:** see `POST_DEV.md` Day 5.
+
+**Study Planner:**
+- Rewrote `createGoal` to check the save result (copy-then-save pattern)
+- Hardened `storage.js`: `getItem` now inside `try`; corrupted data saved to `studyPlanner_corrupt` before clearing
+- Wrote `normalizeData(raw)` — pure function, validates goals and blocks against the schema, drops invalid records with counts
+- Updated `initData` to call `normalizeData`
+- Added `getBlocksForGoal`, `updateGoal`, `deleteGoal`
+- Added Rename and Delete buttons to each goal row in `renderGoalList`
+- Delete uses a count-aware `confirm()`: "Delete X and its N tasks?"
+
+### What worked
+- Copy-then-save pattern: memory never diverges from storage
+- `normalizeData` is pure — no storage, no DOM, testable in isolation
+- Corrupted data backed up before clearing
+- Cascade delete works: goal + blocks removed together
+
+### What I learned
+- **Copy-then-save vs. undo pattern.** Chose copy-then-save because the old memory is preserved until the save succeeds.
+- **The adapter/meaning separation.** `storage.js` doesn't know what a "goal" is. `data.js` doesn't know about localStorage.
+- **Never trust stored data.** Even data the app wrote itself can be edited, corrupted, or from an older version.
+- **Test code never lives in source files.** Ran into a real debugging trap: I had left a `Storage.prototype.setItem` override in `data.js` as a "simulated storage failure" for testing. That override runs on every page load and silently makes every save fail. Took me a while to notice because I had already "fixed it" in my head but not in the file. The rule now: test code goes in the console, run once, then reload the page to clear it.
+
+### What confused me
+- Where `normalizeData` should live — resolved: `data.js`, because it's about meaning, not storage.
+- The chaos caused by the leftover test override — saw "Save failed: Error: full" on every action. The error message was correct; I just didn't realize it was still in the file.
