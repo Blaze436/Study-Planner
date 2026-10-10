@@ -11,9 +11,69 @@ function generateId(prefix) {
     return `${prefix}_${uuid}`;
 }
 
-// Called once on startup. Loads from storage into memory.
+// Verifies and cleans data per the schema. Pure — no storage, no DOM.
+// Returns { data, droppedGoals, droppedBlocks }
+function normalizeData(raw) {
+    const clean = {
+        schemaVersion: raw?.schemaVersion ?? 1,
+        goals: [],
+        blocks: []
+    };
+    let droppedGoals = 0;
+    let droppedBlocks = 0;
+
+    const rawGoals = Array.isArray(raw?.goals) ? raw.goals : [];
+    const rawBlocks = Array.isArray(raw?.blocks) ? raw.blocks : [];
+
+    // Pass 1: validate goals
+    const validGoalIds = new Set();
+    rawGoals.forEach(function(g) {
+        if (!g || typeof g !== "object") { droppedGoals++; return; }
+        if (typeof g.id !== "string" || g.id === "") { droppedGoals++; return; }
+        if (typeof g.title !== "string" || g.title.trim() === "") { droppedGoals++; return; }
+
+        clean.goals.push({
+            id: g.id,
+            title: g.title.trim(),
+            createdAt: typeof g.createdAt === "string" ? g.createdAt : new Date().toISOString()
+        });
+        validGoalIds.add(g.id);
+    });
+
+    // Pass 2: validate blocks
+    rawBlocks.forEach(function(b) {
+        if (!b || typeof b !== "object") { droppedBlocks++; return; }
+        if (typeof b.id !== "string" || b.id === "") { droppedBlocks++; return; }
+        if (typeof b.title !== "string" || b.title.trim() === "") { droppedBlocks++; return; }
+        if (typeof b.goalId !== "string" || !validGoalIds.has(b.goalId)) { droppedBlocks++; return; }
+
+        clean.blocks.push({
+            id: b.id,
+            goalId: b.goalId,
+            title: b.title.trim(),
+            description: typeof b.description === "string" ? b.description : "",
+            assignedDate: typeof b.assignedDate === "string" ? b.assignedDate : null,
+            order: typeof b.order === "number" ? b.order : 1,
+            isCompleted: b.isCompleted === true,
+            completedAt: typeof b.completedAt === "string" ? b.completedAt : null,
+            createdAt: typeof b.createdAt === "string" ? b.createdAt : new Date().toISOString()
+        });
+    });
+
+    return { data: clean, droppedGoals, droppedBlocks };
+}
+
+// Initializes the in-memory data from storage, normalizing it and dropping invalid records.
 function initData() {
-    plannerData = loadAll();
+    const loaded = loadAll();
+    const result = normalizeData(loaded);
+    plannerData = result.data;
+    if (result.droppedGoals > 0 || result.droppedBlocks > 0) {
+        console.warn(
+            "Dropped invalid records:",
+            result.droppedGoals, "goals,", result.droppedBlocks, "blocks"
+        );
+    }
     return plannerData;
 }
 
@@ -22,7 +82,6 @@ function getData() {
     return plannerData;
 }
 
-// Creates a new goal, saves, returns { success, data } or { success, error }.
 function createGoal(title) {
     const trimmed = (title || "").trim();
     if (trimmed === "") {
@@ -35,9 +94,64 @@ function createGoal(title) {
         createdAt: new Date().toISOString()
     };
 
-    plannerData.goals.push(newGoal);
-    saveAll(plannerData);
+    // Copy-then-save pattern: build new data, save it, then adopt
+    const newData = {
+        ...plannerData,
+        goals: [...plannerData.goals, newGoal]
+    };
+
+    const saved = saveAll(newData);
+    if (!saved) {
+        return { success: false, error: "Could not save. Storage may be full." };
+    }
+
+    plannerData = newData;
     return { success: true, data: newGoal };
+}
+
+// Returns blocks for a specific goal, sorted by order.
+function getBlocksForGoal(data, goalId) {
+    return data.blocks
+        .filter(function(b) { return b.goalId === goalId; })
+        .sort(function(a, b) { return a.order - b.order; });
+}
+
+// Renames a goal. Returns { success, data } or { success, error }.
+function updateGoal(goalId, newTitle) {
+    const trimmed = (newTitle || "").trim();
+    if (trimmed === "") {
+        return { success: false, error: "Goal title cannot be empty." };
+    }
+
+    const newData = {
+        ...plannerData,
+        goals: plannerData.goals.map(function(g) {
+            return g.id === goalId ? { ...g, title: trimmed } : g;
+        })
+    };
+
+    const saved = saveAll(newData);
+    if (!saved) return { success: false, error: "Could not save." };
+
+    plannerData = newData;
+    return { success: true };
+}
+
+// Deletes a goal AND its blocks. Returns { success, deletedBlocks }.
+function deleteGoal(goalId) {
+    const blocksToDelete = plannerData.blocks.filter(function(b) { return b.goalId === goalId; }).length;
+
+    const newData = {
+        ...plannerData,
+        goals: plannerData.goals.filter(function(g) { return g.id !== goalId; }),
+        blocks: plannerData.blocks.filter(function(b) { return b.goalId !== goalId; })
+    };
+
+    const saved = saveAll(newData);
+    if (!saved) return { success: false, error: "Could not save." };
+
+    plannerData = newData;
+    return { success: true, deletedBlocks: blocksToDelete };
 }
 
 // Returns all goals sorted by createdAt (oldest first).

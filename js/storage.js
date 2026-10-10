@@ -2,6 +2,7 @@
 console.log("storage.js loaded");
 
 const STORAGE_KEY = "studyPlanner";
+const CORRUPT_KEY = "studyPlanner_corrupt";
 const CURRENT_SCHEMA_VERSION = 1;
 
 // Returns a fresh empty plannerData object. Never share one instance.
@@ -13,23 +14,24 @@ function makeEmptyData() {
     };
 }
 
-// Loads the plannerData from localStorage. Self-heals if corrupted.
 function loadAll() {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw;
+    try {
+        raw = localStorage.getItem(STORAGE_KEY);
+    } catch (error) {
+        console.warn("localStorage read failed:", error);
+        return makeEmptyData();
+    }
 
-    // First-time user
     if (raw === null) return makeEmptyData();
 
     try {
-        const parsed = JSON.parse(raw);
-        // Ensure shape
-        return {
-            schemaVersion: parsed.schemaVersion ?? 1,
-            goals: Array.isArray(parsed.goals) ? parsed.goals : [],
-            blocks: Array.isArray(parsed.blocks) ? parsed.blocks : []
-        };
+        return JSON.parse(raw);
     } catch (error) {
-        console.warn("Corrupted data. Clearing.", error);
+        console.warn("Corrupted data. Saving raw to recovery key.", error);
+        try {
+            localStorage.setItem(CORRUPT_KEY, raw);
+        } catch (_) { /* ignore */ }
         localStorage.removeItem(STORAGE_KEY);
         return makeEmptyData();
     }

@@ -18,6 +18,3 @@ function formatDateForDisplay(dateStr) {
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     return `${months[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
 }
-
-console.log("Today:", getTodayString());
-console.log("Formatted Date:", formatDateForDisplay(getTodayString()));
