@@ -6,14 +6,31 @@
     <title>Study Planner</title>
 </head>
 <body>
-    <h1>Study Planner</h1>
+    <div id="goalsListView">
+        <h1>Study Planner</h1>
 
-    <div>
-        <input type="text" id="goalTitleInput" placeholder="New goal title">
-        <button id="addGoalBtn">Add Goal</button>
+        <div>
+            <input type="text" id="goalTitleInput" placeholder="New goal title">
+            <button id="addGoalBtn">Add Goal</button>
+        </div>
+
+        <div id="goalList"></div>
     </div>
 
-    <div id="goalList"></div>
+    <div id="goalDetailView" style="display: none;">
+        <button id="backToGoalsBtn">← Back</button>
+        <h2 id="goalDetailTitle"></h2>
+
+        <div id="goalTaskList"></div>
+
+        <h3>Add Task</h3>
+        <div>
+            <input type="text" id="newTaskTitle" placeholder="Task title">
+            <input type="text" id="newTaskDescription" placeholder="Description (optional)">
+            <input type="date" id="newTaskDate">
+            <button id="addTaskBtn">Add Task</button>
+        </div>
+    </div>
 
     <script src="js/date.js"></script>
     <script src="js/storage.js"></script>
