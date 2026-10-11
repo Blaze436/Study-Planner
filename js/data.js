@@ -154,6 +154,85 @@ function deleteGoal(goalId) {
     return { success: true, deletedBlocks: blocksToDelete };
 }
 
+// Creates a new block under an existing goal.
+// In: goalId, title, description, assignedDate (may be null)
+// Out: { success, data } or { success: false, error }
+// Changes: appends to plannerData.blocks and saves.
+function createBlock(goalId, title, description, assignedDate) {
+    const trimmedTitle = (title || "").trim();
+    if (trimmedTitle === "") {
+        return { success: false, error: "Task title cannot be empty." };
+    }
+
+    const goalExists = plannerData.goals.some(function(g) { return g.id === goalId; });
+    if (!goalExists) {
+        return { success: false, error: "Goal not found." };
+    }
+
+    // order = highest existing order in this goal + 1
+    const ordersInGoal = plannerData.blocks
+        .filter(function(b) { return b.goalId === goalId; })
+        .map(function(b) { return b.order; });
+    const nextOrder = ordersInGoal.length === 0
+        ? 1
+        : Math.max.apply(null, ordersInGoal) + 1;
+
+    const newBlock = {
+        id: generateId("blk"),
+        goalId: goalId,
+        title: trimmedTitle,
+        description: (description || "").trim(),
+        assignedDate: assignedDate || null,
+        order: nextOrder,
+        isCompleted: false,
+        completedAt: null,
+        createdAt: new Date().toISOString()
+    };
+
+    const newData = {
+        ...plannerData,
+        blocks: [...plannerData.blocks, newBlock]
+    };
+
+    const saved = saveAll(newData);
+    if (!saved) {
+        return { success: false, error: "Could not save. Storage may be full." };
+    }
+
+    plannerData = newData;
+    return { success: true, data: newBlock };
+}
+
+// Toggles a block's completion state.
+// In: blockId
+// Out: { success, data } or { success: false, error }
+// Changes: flips isCompleted; sets or clears completedAt; saves.
+function toggleBlockComplete(blockId) {
+    const block = plannerData.blocks.find(function(b) { return b.id === blockId; });
+    if (!block) {
+        return { success: false, error: "Task not found." };
+    }
+
+    const nowCompleted = !block.isCompleted;
+    const newData = {
+        ...plannerData,
+        blocks: plannerData.blocks.map(function(b) {
+            if (b.id !== blockId) return b;
+            return {
+                ...b,
+                isCompleted: nowCompleted,
+                completedAt: nowCompleted ? new Date().toISOString() : null
+            };
+        })
+    };
+
+    const saved = saveAll(newData);
+    if (!saved) return { success: false, error: "Could not save." };
+
+    plannerData = newData;
+    return { success: true, data: newData.blocks.find(function(b) { return b.id === blockId; }) };
+}
+
 // Returns all goals sorted by createdAt (oldest first).
 function getAllGoalsSorted(data) {
     return [...data.goals].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
