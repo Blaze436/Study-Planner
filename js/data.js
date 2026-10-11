@@ -233,6 +233,63 @@ function toggleBlockComplete(blockId) {
     return { success: true, data: newData.blocks.find(function(b) { return b.id === blockId; }) };
 }
 
+// Updates a block's editable fields. Cannot change order, completion state, or IDs.
+// In: blockId, updates object (may contain title, description, assignedDate)
+// Out: { success, data } or { success: false, error }
+// Changes: merges provided fields only; saves.
+function updateBlock(blockId, updates) {
+    const block = plannerData.blocks.find(function(b) { return b.id === blockId; });
+    if (!block) return { success: false, error: "Task not found." };
+
+    const newBlock = { ...block };
+
+    if ("title" in updates) {
+        const trimmed = (updates.title || "").trim();
+        if (trimmed === "") return { success: false, error: "Task title cannot be empty." };
+        newBlock.title = trimmed;
+    }
+    if ("description" in updates) {
+        newBlock.description = (updates.description || "").trim();
+    }
+    if ("assignedDate" in updates) {
+        newBlock.assignedDate = updates.assignedDate || null;
+    }
+
+    // Never touched: id, goalId, order, isCompleted, completedAt, createdAt
+
+    const newData = {
+        ...plannerData,
+        blocks: plannerData.blocks.map(function(b) {
+            return b.id === blockId ? newBlock : b;
+        })
+    };
+
+    const saved = saveAll(newData);
+    if (!saved) return { success: false, error: "Could not save." };
+
+    plannerData = newData;
+    return { success: true, data: newBlock };
+}
+
+// Removes a block. Does NOT renumber siblings (gaps allowed).
+// In: blockId
+// Out: { success } or { success: false, error }
+function deleteBlock(blockId) {
+    const exists = plannerData.blocks.some(function(b) { return b.id === blockId; });
+    if (!exists) return { success: false, error: "Task not found." };
+
+    const newData = {
+        ...plannerData,
+        blocks: plannerData.blocks.filter(function(b) { return b.id !== blockId; })
+    };
+
+    const saved = saveAll(newData);
+    if (!saved) return { success: false, error: "Could not save." };
+
+    plannerData = newData;
+    return { success: true };
+}
+
 // Returns all goals sorted by createdAt (oldest first).
 function getAllGoalsSorted(data) {
     return [...data.goals].sort((a, b) => a.createdAt.localeCompare(b.createdAt));

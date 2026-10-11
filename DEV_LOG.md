@@ -288,3 +288,51 @@ Architect flagged inconsistencies after commit. Fixed:
 ### What confused me
 - Where `normalizeData` should live — resolved: `data.js`, because it's about meaning, not storage.
 - The chaos caused by the leftover test override — saw "Save failed: Error: full" on every action. The error message was correct; I just didn't realize it was still in the file.
+
+---
+
+## Day 6 — Planner Slice 3: Detail View, Edit, Delete
+**Date:** 11 October 2026
+**Time spent:** ~7 hours (Driver 3h + Planner 3h + GA4 setup 1h)
+
+### What I did
+
+**Driver app:**
+- Added favicon via favicon.io (yellow taxi emoji)
+- Built a Google Form for user feedback, linked from Settings
+- Wrote the Facebook in-app browser banner — detects `FBAN|FBAV` in user agent, shows once, dismissible
+- Fixed share message bidi rendering (Urdu + English on separate lines)
+- Fixed share fallback variable bug
+- Cleaned `utm_links.md` duplicate row
+- Messaged admins of top 5 launch groups with an Urdu-language, non-promotional pitch
+- Wrote two image-post drafts to `docs/image_posts.md`
+
+**Study Planner:**
+- Added `createBlock(goalId, title, description, assignedDate)` — validates goal exists, title not empty; auto-assigns `order`
+- Added `toggleBlockComplete(blockId)` — flips `isCompleted`, sets or clears `completedAt`
+- Added `updateBlock(blockId, updates)` and `deleteBlock(blockId)`
+- Built the goal detail view: separate container with Back button, task list, add-task form
+- Rewrote `screens.js` to use `showView()` for switching between the goal list and goal detail
+- Wired the Add Task form (title, description, optional date)
+
+**GA4:**
+- Customized Reports Snapshot with 4 cards
+- Created "Platform breakdown" exploration showing how many calculations per platform
+- Discovered `(not set)` rows are pre-registration events — expected, not a bug
+
+### What worked
+- Detail view navigation works cleanly
+- Checkbox in the task list toggles completion and re-renders
+- Date picker accepts empty (unscheduled) or a value
+- The Exploration confirmed platform tracking works: Bykea 14, inDrive 5, Custom 3, Yango 2
+- Admin outreach landed better in Urdu with a warm tone than my earlier English version
+
+### What I learned
+- **Test code never lives in source files.** The `Storage.prototype.setItem` override from Block 2 was still in `data.js` and silently broke every save. The error message was correct — I just didn't see it. Rule now firm: tests go in the console.
+- **GA4 custom dimensions don't backfill.** Events fired before registration show as `(not set)`. The 21 `(not set)` rows are pre-Oct-7 events. Not a problem.
+- **GA4 custom dimensions don't appear in Report card picker immediately.** 24-48 hour propagation. The Exploration sees them right away.
+- **`updateBlock` uses "in" checks (`"title" in updates`)** so it merges only the fields the caller provides, without accidentally nulling the others.
+
+### What confused me
+- Couldn't find the "User agent override" location in DevTools for testing the FB banner (resolved: Chrome's device toolbar has it under "Custom").
+- Spent time searching for the Ride platform card in the Reports snapshot — doesn't exist yet due to GA4 lag.
