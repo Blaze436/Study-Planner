@@ -336,3 +336,59 @@ Architect flagged inconsistencies after commit. Fixed:
 ### What confused me
 - Couldn't find the "User agent override" location in DevTools for testing the FB banner (resolved: Chrome's device toolbar has it under "Custom").
 - Spent time searching for the Ride platform card in the Reports snapshot — doesn't exist yet due to GA4 lag.
+
+---
+
+## Day 7 — Today's View + Launch Day (Driver App)
+**Date:** 12 October 2026
+**Time spent:** ~5 hours (Code 3h + Launch activity 2h)
+
+### What I did
+
+**Study Planner:**
+- Wrote `getTodayBlocks(data)` — returns today's tasks grouped by goal, only for goals that have at least one task today
+- Rebuilt `index.html` with a third view: `todayView` (now the default landing screen)
+- Added navigation links: "See all goals →" (from Today) and "← Today's View" (from the goals list)
+- Rebuilt `showView()` to hide three views instead of two
+- Wrote `renderTodayView()` — grouped task rendering with checkboxes, strikethrough on complete, and both empty states ("No goals yet" and "No tasks today")
+- Changed `main.js` to call `renderTodayView()` on startup instead of `renderGoalList()`
+- Added the delete-task button and inline edit mode (from the earlier phases)
+- Tested all states: no goals, goals with no today tasks, goals with today tasks, ticking, persistence
+
+**Driver app (code fixes):**
+- Guarded `saveSettingsToStorage` and `loadSettingsFromStorage` in try/catch
+- Added a save-failure message so a failed save no longer looks like success
+- Fixed the Urdu share message (correction: پیٹرول not پٹرول)
+- Made the Facebook in-app banner bilingual (English + Urdu)
+- Added `id="feedbackLink"` to the feedback anchor in HTML — fixed the console error
+
+**Driver app (launch):**
+- Posted the Urdu introduction + 3 real screenshots (Details, Calculate, Results) to the approved group and 5 groups with no rule against links
+- Logged the launch in `POST_DEV.md`
+- Decided to pivot the video plan — one 60-second hybrid video instead of two scenario videos
+- Drafted the Urdu and English captions, the AI voiceover scripts, and the carousel structure
+
+### What worked
+- Today's View shows exactly what's due and nothing else — it's the real "core experience" the MVP doc described
+- Real screenshots (not mockups) look trustworthy and can't be second-guessed
+- The approved-group post reached a couple of real visitors in the first hour — expected pace, not a viral moment
+- The multi-group posting strategy (vary the intro, space posts apart, respect the group rules) is right for avoiding admin flags
+- Pivoting the video from 2 scenarios to 1 hybrid was correct — easier to land, more useful to a first-time viewer
+
+### What I learned
+- **Launch is a trickle, not an event.** One post in one group gets you 2-5 visitors, not hundreds. Ten posts get you 20-50. That's normal for a first launch and there's nothing wrong with it.
+- **Launching across groups needs admin etiquette.** Approved groups can accept a launch post; groups with no rules can too; groups with "no promotion" rules require waiting for admin approval. Being rejected by an admin is data, not a failure.
+- **The 393 PKR example is more useful than the 500 PKR example.** It has a 3 km dead distance that viewers can see — the "hidden cost" story lands better than the simple 500/302 one.
+- **Today's View needs both empty states.** "No goals yet" (onboarding) and "No tasks today" (accomplishment) are two different user moments. Handling them separately respects the user's situation.
+
+### What confused me
+- The ride platform card still doesn't appear in the Reports snapshot editor (still inside GA4's 24-48h propagation window). The Exploration shows it fine — that's the one that matters right now.
+- The launch log I set up initially was too granular — tracking every group name and timestamp became friction. Simplified it to a broader format that tracks activity, numbers, and decisions.
+
+### Design decisions locked in
+- **Today's View is the default landing screen.** Goals list is one click away.
+- **Two empty states in Today's View.** Onboarding vs. accomplishment.
+- **One hybrid video**, not two scenario videos. Recording tomorrow.
+- **Launch runs across multiple days**, not one big event. Groups will receive posts as admins approve them.
+- **Launch log is broad**, not granular. Track numbers, decisions, and next steps — not every action.
+
