@@ -9,6 +9,7 @@ let editingBlockId = null;
 
 // Shows one view, hides all others.
 function showView(viewId) {
+    document.getElementById("todayView").style.display = "none";
     document.getElementById("goalsListView").style.display = "none";
     document.getElementById("goalDetailView").style.display = "none";
     document.getElementById(viewId).style.display = "block";
@@ -220,5 +221,85 @@ function renderGoalDetail() {
         row.appendChild(deleteBtn);
 
         container.appendChild(row);
+    });
+}
+
+// --- Today's View ---
+
+function renderTodayView() {
+    document.getElementById("todayDate").textContent = formatDateForDisplay(getTodayString());
+
+    const container = document.getElementById("todayTaskList");
+    container.innerHTML = "";
+
+    const data = getData();
+    const grouped = getTodayBlocks(data);
+
+    // Empty state 1: no goals at all
+    if (data.goals.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent = "No goals yet. Create your first goal to get started.";
+        empty.style.color = "#888";
+        container.appendChild(empty);
+        return;
+    }
+
+    // Empty state 2: goals exist, nothing today
+    if (grouped.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent = "No tasks today.";
+        empty.style.color = "#888";
+        container.appendChild(empty);
+        return;
+    }
+
+    // Normal state: task list grouped by goal
+    grouped.forEach(function(group) {
+        const header = document.createElement("h3");
+        header.textContent = group.goal.title;
+        header.style.marginTop = "20px";
+        header.style.marginBottom = "8px";
+        container.appendChild(header);
+
+        group.blocks.forEach(function(block) {
+            const row = document.createElement("div");
+            row.style.padding = "8px 0";
+            row.style.borderBottom = "1px solid #333";
+            row.style.display = "flex";
+            row.style.alignItems = "flex-start";
+            row.style.gap = "10px";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = block.isCompleted;
+            checkbox.addEventListener("change", function() {
+                const result = toggleBlockComplete(block.id);
+                if (!result.success) { alert(result.error); return; }
+                renderTodayView();
+            });
+            row.appendChild(checkbox);
+
+            const textDiv = document.createElement("div");
+            textDiv.style.flex = "1";
+
+            const titleEl = document.createElement("div");
+            titleEl.textContent = block.title;
+            if (block.isCompleted) {
+                titleEl.style.textDecoration = "line-through";
+                titleEl.style.opacity = "0.6";
+            }
+            textDiv.appendChild(titleEl);
+
+            if (block.description) {
+                const descEl = document.createElement("div");
+                descEl.textContent = block.description;
+                descEl.style.fontSize = "0.85em";
+                descEl.style.color = "#888";
+                textDiv.appendChild(descEl);
+            }
+
+            row.appendChild(textDiv);
+            container.appendChild(row);
+        });
     });
 }

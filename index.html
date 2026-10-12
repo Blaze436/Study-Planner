@@ -6,8 +6,20 @@
     <title>Study Planner</title>
 </head>
 <body>
-    <div id="goalsListView">
-        <h1>Study Planner</h1>
+    <div id="todayView">
+        <h1>Today</h1>
+        <p id="todayDate" style="color:#888; font-size:0.9em; margin-top:-10px;"></p>
+
+        <div id="todayTaskList"></div>
+
+        <p style="margin-top:24px;">
+            <a href="#" id="seeAllGoalsLink">See all goals →</a>
+        </p>
+    </div>
+
+    <div id="goalsListView" style="display:none;">
+        <p style="margin-bottom:8px;"><a href="#" id="backToTodayLink">← Today's View</a></p>
+        <h1>All Goals</h1>
 
         <div>
             <input type="text" id="goalTitleInput" placeholder="New goal title">
@@ -17,7 +29,7 @@
         <div id="goalList"></div>
     </div>
 
-    <div id="goalDetailView" style="display: none;">
+    <div id="goalDetailView" style="display:none;">
         <button id="backToGoalsBtn">← Back</button>
         <h2 id="goalDetailTitle"></h2>
 

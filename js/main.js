@@ -3,7 +3,7 @@ console.log("main.js loaded");
 
 // Startup sequence
 initData();
-renderGoalList();
+renderTodayView();
 
 // Wire the "Add Goal" button
 document.getElementById("addGoalBtn").addEventListener("click", function() {
@@ -56,4 +56,18 @@ document.getElementById("addTaskBtn").addEventListener("click", function() {
 document.getElementById("cancelEditBtn").addEventListener("click", function() {
     editingBlockId = null;
     resetTaskForm();
+});
+
+// Wire "See all goals" from Today's View
+document.getElementById("seeAllGoalsLink").addEventListener("click", function(e) {
+    e.preventDefault();
+    renderGoalList();
+    showView("goalsListView");
+});
+
+// Wire "← Today's View" from the goals list
+document.getElementById("backToTodayLink").addEventListener("click", function(e) {
+    e.preventDefault();
+    renderTodayView();
+    showView("todayView");
 });

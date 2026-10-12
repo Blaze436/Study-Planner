@@ -290,6 +290,25 @@ function deleteBlock(blockId) {
     return { success: true };
 }
 
+// Returns today's blocks grouped by goal.
+// In: data
+// Out: array of { goal, blocks } — only goals that have at least one task today
+function getTodayBlocks(data) {
+    const today = getTodayString();
+    const todaysBlocks = data.blocks.filter(function(b) { return b.assignedDate === today; });
+
+    const grouped = [];
+    data.goals.forEach(function(goal) {
+        const goalBlocks = todaysBlocks
+            .filter(function(b) { return b.goalId === goal.id; })
+            .sort(function(a, b) { return a.order - b.order; });
+        if (goalBlocks.length > 0) {
+            grouped.push({ goal: goal, blocks: goalBlocks });
+        }
+    });
+    return grouped;
+}
+
 // Returns all goals sorted by createdAt (oldest first).
 function getAllGoalsSorted(data) {
     return [...data.goals].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
