@@ -24,7 +24,7 @@ document.getElementById("backToGoalsBtn").addEventListener("click", function() {
     backToGoalList();
 });
 
-// Wire the "Add Task" button (only active when the detail view is open)
+// Wire the "Add Task" button
 document.getElementById("addTaskBtn").addEventListener("click", function() {
     if (!currentGoalId) return;
 
@@ -32,16 +32,28 @@ document.getElementById("addTaskBtn").addEventListener("click", function() {
     const description = document.getElementById("newTaskDescription").value;
     const date = document.getElementById("newTaskDate").value || null;
 
-    const result = createBlock(currentGoalId, title, description, date);
+    let result;
+    if (editingBlockId) {
+        result = updateBlock(editingBlockId, {
+            title: title,
+            description: description,
+            assignedDate: date
+        });
+    } else {
+        result = createBlock(currentGoalId, title, description, date);
+    }
+
     if (!result.success) {
         alert(result.error);
         return;
     }
 
-    // Clear the form
-    document.getElementById("newTaskTitle").value = "";
-    document.getElementById("newTaskDescription").value = "";
-    document.getElementById("newTaskDate").value = "";
-
+    editingBlockId = null;
+    resetTaskForm();
     renderGoalDetail();
+});
+
+document.getElementById("cancelEditBtn").addEventListener("click", function() {
+    editingBlockId = null;
+    resetTaskForm();
 });

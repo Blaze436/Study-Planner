@@ -4,6 +4,9 @@ console.log("screens.js loaded");
 // Which goal's detail view is currently open (null = list view)
 let currentGoalId = null;
 
+// Which block is currently being edited (null = adding new)
+let editingBlockId = null;
+
 // Shows one view, hides all others.
 function showView(viewId) {
     document.getElementById("goalsListView").style.display = "none";
@@ -89,8 +92,18 @@ function renderGoalList() {
 
 function openGoalDetail(goalId) {
     currentGoalId = goalId;
+    editingBlockId = null;
+    resetTaskForm();
     renderGoalDetail();
     showView("goalDetailView");
+}
+
+function resetTaskForm() {
+    document.getElementById("newTaskTitle").value = "";
+    document.getElementById("newTaskDescription").value = "";
+    document.getElementById("newTaskDate").value = "";
+    document.getElementById("addTaskBtn").textContent = "Add Task";
+    document.getElementById("cancelEditBtn").style.display = "none";
 }
 
 function backToGoalList() {
@@ -175,6 +188,37 @@ function renderGoalDetail() {
         textDiv.appendChild(dateEl);
 
         row.appendChild(textDiv);
+
+        // Edit button
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.style.cssText = "background:none; border:1px solid #666; color:#aaa; padding:2px 8px; cursor:pointer; font-size:0.8em; border-radius:4px; margin-right:4px;";
+        editBtn.addEventListener("click", function() {
+            editingBlockId = block.id;
+            document.getElementById("newTaskTitle").value = block.title;
+            document.getElementById("newTaskDescription").value = block.description || "";
+            document.getElementById("newTaskDate").value = block.assignedDate || "";
+            document.getElementById("addTaskBtn").textContent = "Save Changes";
+            document.getElementById("cancelEditBtn").style.display = "inline-block";
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        });
+        row.appendChild(editBtn);
+
+        // Delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.style.cssText = "background:none; border:1px solid #666; color:#aaa; padding:2px 8px; cursor:pointer; font-size:0.8em; border-radius:4px;";
+        deleteBtn.addEventListener("click", function() {
+            if (!confirm("Delete this task?")) return;
+            const result = deleteBlock(block.id);
+            if (!result.success) {
+                alert(result.error);
+                return;
+            }
+            renderGoalDetail();
+        });
+        row.appendChild(deleteBtn);
+
         container.appendChild(row);
     });
 }
