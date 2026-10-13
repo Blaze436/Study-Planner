@@ -309,6 +309,22 @@ function getTodayBlocks(data) {
     return grouped;
 }
 
+// Returns true if a block is missed: has a date, that date is in the past, and it's not complete.
+// Single source of truth for "missed" — used by both Today's View and any future label.
+function isBlockMissed(block, today) {
+    if (!block.assignedDate) return false;
+    if (block.isCompleted) return false;
+    return block.assignedDate < today; // YYYY-MM-DD strings compare correctly
+}
+
+// Returns missed blocks, oldest first.
+function getMissedBlocks(data) {
+    const today = getTodayString();
+    return data.blocks
+        .filter(function(b) { return isBlockMissed(b, today); })
+        .sort(function(a, b) { return a.assignedDate.localeCompare(b.assignedDate); });
+}
+
 // Returns all goals sorted by createdAt (oldest first).
 function getAllGoalsSorted(data) {
     return [...data.goals].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
