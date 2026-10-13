@@ -325,6 +325,15 @@ function getMissedBlocks(data) {
         .sort(function(a, b) { return a.assignedDate.localeCompare(b.assignedDate); });
 }
 
+// Returns { completed, total, percent } for a goal. Percent is 0 if no tasks.
+function getGoalProgress(data, goalId) {
+    const goalBlocks = data.blocks.filter(function(b) { return b.goalId === goalId; });
+    const total = goalBlocks.length;
+    const completed = goalBlocks.filter(function(b) { return b.isCompleted; }).length;
+    const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+    return { completed: completed, total: total, percent: percent };
+}
+
 // Returns all goals sorted by createdAt (oldest first).
 function getAllGoalsSorted(data) {
     return [...data.goals].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
