@@ -392,3 +392,46 @@ Architect flagged inconsistencies after commit. Fixed:
 - **Launch runs across multiple days**, not one big event. Groups will receive posts as admins approve them.
 - **Launch log is broad**, not granular. Track numbers, decisions, and next steps — not every action.
 
+---
+
+## Day 8 — Missed Section, Goal Progress, Empty State, Launch Cleanup
+**Date:** 13 October 2026
+**Time spent:** ~5 Hours (3h Driver + 2h Planner)
+
+### What I did
+
+**Driver app:**
+- Cleaned `POST_DEV.md`: updated current status to Oct 13, marked the Oct 12 launch row complete as "6 groups posted, video deferred", and appended an honest Oct 13 status entry.
+- Committed and pushed the documentation cleanup.
+
+**Study Planner:**
+- Added `isBlockMissed(block, today)` and `getMissedBlocks(data)` in `js/data.js` — missed means assignedDate is before today and the task is not completed; results sorted oldest first.
+- Added a collapsible Missed section in Today's View in `js/screens.js`, with a "Move to today" action.
+- Tested with a real incomplete task from yesterday: `getMissedBlocks(getData())` returned it, and Move to today worked.
+- Recolored the Missed section: header background `#1e3a5f`, border `1px solid #2c5282`, row background `#252a33`.
+- Added `getGoalProgress(data, goalId)` in `js/data.js` and displayed "X% done" / "No tasks yet" in `renderGoalList` in `js/screens.js`.
+- Added "+ Create your first goal" to the no-goals empty state in `renderTodayView`; it opens the Organizer/goal list and focuses the goal title input.
+- Tested 0%, partial, complete, and no-task goals; tested the empty-state button.
+- Committed and pushed the Planner changes.
+
+### What worked
+- The Missed section is visible but not aggressive; the new colors fit the UI better.
+- Goal progress gives a quick completion signal without adding new data.
+- The empty-state button gives a clear first action for new users.
+- `getMissedBlocks` worked with a real overdue task, not only synthetic console tests.
+
+### What I learned
+- Real data is more convincing than artificial console tests for this feature.
+- Missed work should remain visible without feeling punitive.
+- Empty states are onboarding moments; a button reduces friction.
+- Small UI changes can be committed quickly once the data layer is correct.
+
+### What confused me
+- The artificial console tests were confusing; using an existing incomplete task was simpler.
+- The first Missed section colors looked wrong; fixed with a blue-gray palette.
+
+### Design decisions locked in
+- Missed section colors: header `#1e3a5f`, border `#2c5282`, rows `#252a33`.
+- Goal progress display: "X% done" or "No tasks yet".
+- No-goals empty state includes "+ Create your first goal" button.
+- Duplicate block option captured as a future idea (not implemented yet).
