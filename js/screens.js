@@ -262,6 +262,19 @@ function renderTodayView() {
         empty.textContent = "No goals yet. Create your first goal to get started.";
         empty.style.color = "#888";
         container.appendChild(empty);
+
+        const createBtn = document.createElement("button");
+        createBtn.textContent = "+ Create your first goal";
+        createBtn.style.cssText = "margin-top:16px; padding:10px 16px; background:#4a5568; color:white; border:none; border-radius:6px; cursor:pointer; font-size:1em;";
+        createBtn.addEventListener("click", function() {
+            renderGoalList();
+            showView("goalsListView");
+            // Focus the input
+            setTimeout(function() {
+                document.getElementById("goalTitleInput").focus();
+            }, 50);
+        });
+        container.appendChild(createBtn);
         return;
     }
 
