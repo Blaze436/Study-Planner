@@ -278,15 +278,6 @@ function renderTodayView() {
         return;
     }
 
-    // Empty state 2: goals exist, nothing today
-    if (grouped.length === 0) {
-        const empty = document.createElement("p");
-        empty.textContent = "No tasks today.";
-        empty.style.color = "#888";
-        container.appendChild(empty);
-        return;
-    }
-
     // Missed section (only if there are any missed blocks)
     const missed = getMissedBlocks(data);
     if (missed.length > 0) {
@@ -371,6 +362,13 @@ function renderTodayView() {
         }
     }
 
+    // Empty state 2: goals exist, nothing today
+    if (grouped.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent = "No tasks today.";
+        empty.style.color = "#888";
+        container.appendChild(empty);
+    }
 
     // Normal state: task list grouped by goal
     grouped.forEach(function(group) {
