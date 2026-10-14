@@ -40,12 +40,33 @@ function normalizeData(raw) {
         validGoalIds.add(g.id);
     });
 
-    // Pass 2: validate blocks
+        // Pass 2a: find the highest valid order per goal, so blocks missing order
+    // can be placed after the existing ones instead of colliding at 1.
+    const maxOrderByGoal = new Map();
+    rawBlocks.forEach(function(b) {
+        if (!b || typeof b !== "object") return;
+        if (typeof b.goalId !== "string" || !validGoalIds.has(b.goalId)) return;
+        if (typeof b.order !== "number") return;
+        const current = maxOrderByGoal.get(b.goalId) || 0;
+        if (b.order > current) maxOrderByGoal.set(b.goalId, b.order);
+    });
+
+    // Pass 2b: validate blocks and assign orders
     rawBlocks.forEach(function(b) {
         if (!b || typeof b !== "object") { droppedBlocks++; return; }
         if (typeof b.id !== "string" || b.id === "") { droppedBlocks++; return; }
         if (typeof b.title !== "string" || b.title.trim() === "") { droppedBlocks++; return; }
         if (typeof b.goalId !== "string" || !validGoalIds.has(b.goalId)) { droppedBlocks++; return; }
+
+        let order;
+        if (typeof b.order === "number") {
+            order = b.order;
+        } else {
+            // Missing order: place it after the highest known order in that goal,
+            // and bump the goal's max so the next missing one doesn't collide.
+            order = (maxOrderByGoal.get(b.goalId) || 0) + 1;
+            maxOrderByGoal.set(b.goalId, order);
+        }
 
         clean.blocks.push({
             id: b.id,
@@ -53,7 +74,7 @@ function normalizeData(raw) {
             title: b.title.trim(),
             description: typeof b.description === "string" ? b.description : "",
             assignedDate: typeof b.assignedDate === "string" ? b.assignedDate : null,
-            order: typeof b.order === "number" ? b.order : 1,
+            order: order,
             isCompleted: b.isCompleted === true,
             completedAt: typeof b.completedAt === "string" ? b.completedAt : null,
             createdAt: typeof b.createdAt === "string" ? b.createdAt : new Date().toISOString()
@@ -337,4 +358,18 @@ function getGoalProgress(data, goalId) {
 // Returns all goals sorted by createdAt (oldest first).
 function getAllGoalsSorted(data) {
     return [...data.goals].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+// Builds a backup bundle from the current data.
+// Pure — does NOT save, does NOT touch storage or the DOM.
+// In: data (the current plannerData)
+// Out: a plain object ready to be JSON.stringify-ed and downloaded.
+function exportAll(data) {
+    return {
+        app: "study-planner",
+        exportedAt: new Date().toISOString(),
+        schemaVersion: data.schemaVersion,
+        goals: data.goals,
+        blocks: data.blocks
+    };
 }

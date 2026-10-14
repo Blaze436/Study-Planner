@@ -18,3 +18,11 @@ function formatDateForDisplay(dateStr) {
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     return `${months[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
 }
+
+// Returns true if dateStr is a valid "YYYY-MM-DD" string.
+// Does NOT check whether it's a real calendar date (Feb 31 passes).
+// That's fine for the MVP — the risk is very low and the check is cheap.
+function isValidDateString(dateStr) {
+    if (typeof dateStr !== "string") return false;
+    return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+}
