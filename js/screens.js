@@ -227,6 +227,31 @@ function renderGoalDetail() {
         });
         row.appendChild(editBtn);
 
+        // Reorder buttons — move up / down within this goal
+        const reorderStyle = "background:none; border:1px solid #666; color:#aaa; padding:2px 6px; cursor:pointer; font-size:0.8em; border-radius:4px; margin-right:4px;";
+
+        const upBtn = document.createElement("button");
+        upBtn.textContent = "↑";
+        upBtn.title = "Move up";
+        upBtn.style.cssText = reorderStyle;
+        upBtn.addEventListener("click", function() {
+            const result = reorderBlock(block.id, "up");
+            if (!result.success) { alert(result.error); return; }
+            renderGoalDetail();
+        });
+        row.appendChild(upBtn);
+
+        const downBtn = document.createElement("button");
+        downBtn.textContent = "↓";
+        downBtn.title = "Move down";
+        downBtn.style.cssText = reorderStyle;
+        downBtn.addEventListener("click", function() {
+            const result = reorderBlock(block.id, "down");
+            if (!result.success) { alert(result.error); return; }
+            renderGoalDetail();
+        });
+        row.appendChild(downBtn);
+
         // Delete button
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Delete";
