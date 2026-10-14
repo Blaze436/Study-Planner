@@ -435,3 +435,57 @@ Architect flagged inconsistencies after commit. Fixed:
 - Goal progress display: "X% done" or "No tasks yet".
 - No-goals empty state includes "+ Create your first goal" button.
 - Duplicate block option captured as a future idea (not implemented yet).
+
+---
+
+## Day 9 — Missed Bug Fix, Export, Reorder, README
+**Date:** 14 October 2026
+**Time spent:** 4 Hours 
+
+### What I did
+
+**Driver app:**
+- Recorded and edited the 60-second hybrid demo video: blurred title card → Details → Calculate → Platform dropdown → Results → outro.
+- Silent master with type-in subtitles, arrows on key moments, no BGM (kept clean for future voiceover / keyboard SFX layering).
+- Outro shows the actual URL + "This is a community project: No Ads, No Sign-up".
+- Published on YouTube Shorts.
+- Posted to 4 Facebook driver groups on Oct 13.
+- Remaining Facebook groups, TikTok, and Instagram planned for Oct 14(Today). WhatsApp skipped deliberately.
+
+**Study Planner:**
+- Fixed the Missed bug in `renderTodayView`: the "No tasks today." empty state was returning early, so the Missed section never rendered on days with nothing scheduled. Reordered so Missed builds first.
+- Added `exportAll(data)` in `js/data.js` — pure function that returns a backup bundle with `app`, `exportedAt`, `schemaVersion`, `goals`, `blocks`.
+- Added a Settings view in `index.html` with an "Export backup" button. Wired the download in `main.js` using `Blob` + `URL.createObjectURL` + a temporary `<a download>` click.
+- Fixed the `order` default in `normalizeData`: missing orders now default to highest-in-goal + 1, with a per-goal max map so multiple missing-order blocks don't collide.
+- Added `isValidDateString(dateStr)` in `js/date.js` — regex check for `YYYY-MM-DD` shape, for future import validation.
+- Added `reorderBlock(blockId, direction)` in `js/data.js` — swaps a block with its neighbor within its goal, then renumbers orders contiguously (1, 2, 3...).
+- Added ↑ / ↓ reorder buttons in goal detail task rows in `js/screens.js`.
+- Replaced the placeholder `README.md` with a project overview: purpose, stack, run instructions, file layout, pointers to `docs/`.
+
+### What worked
+- The Missed fix was clean because the bug was purely an order-of-operations issue.
+- Export downloaded correctly and the file shape matched the schema example.
+- `reorderBlock` passed all four cases first try: swap up, swap down, no-op on first, no-op on last.
+- The per-goal max map in `normalizeData` prevents missing-order blocks from colliding.
+- Keeping `exportAll` (pure bundle) separate from the download wiring (Blob + DOM) kept the data layer free of browser-specific code.
+
+### What I learned
+- **The early-return pattern is a common source of subtle bugs.** Any "if X, show and return" check runs before everything below it. If a later section should still show, the return silently hides it.
+- **Blob + object URL is the standard download pattern.** `JSON.stringify` → `Blob` → `URL.createObjectURL` → temporary `<a download>` click → `URL.revokeObjectURL`. Understanding each step matters because it's reusable for import later.
+- **Two-pass normalization helps when one field depends on others.** Finding max order per goal first, then assigning defaults to missing ones, avoids a common collision bug.
+- **Renumbering after every reorder keeps order values tidy.** Leaving gaps would make future features (like cycles) harder to reason about.
+- **A README is part of the codebase, not an afterthought.** A public repo's README is the first thing a visitor reads; a placeholder undermines credibility.
+
+### What confused me
+- Whether the Missed bug was the early-return order or the Missed section being inside the empty-state branch. Reading the flow line by line made it obvious it was the first.
+- Whether `exportAll` should live in `data.js` or `storage.js`. Kept it in `data.js` because it's about the data's meaning and shape, not storage mechanics.
+
+### Design decisions locked in
+- `exportAll` is a pure function; download wiring lives in `main.js`.
+- Backup file naming: `study-planner-backup-YYYY-MM-DD.json`.
+- `reorderBlock` renumbers orders contiguously after every successful swap.
+- `isValidDateString` checks shape only (`YYYY-MM-DD`), not calendar validity. Revisit if untrusted import sources appear.
+- The `order` default for missing values is now highest-in-goal + 1, not a fixed `1`.
+
+### Honesty note (updated Oct 14)
+Across the whole build, I've written every file myself, with the Claude explaining concepts (fresh objects, spread-before-sort, copy-then-save, blob downloads) and DeepSeek providing paste-ready slices for the small, well-defined pieces (exportAll, reorderBlock, isValidDateString, the download wiring). I understand each function's inputs, outputs, and purpose before committing it.
