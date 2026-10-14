@@ -40,7 +40,7 @@ function normalizeData(raw) {
         validGoalIds.add(g.id);
     });
 
-        // Pass 2a: find the highest valid order per goal, so blocks missing order
+    // Pass 2a: find the highest valid order per goal, so blocks missing order
     // can be placed after the existing ones instead of colliding at 1.
     const maxOrderByGoal = new Map();
     rawBlocks.forEach(function(b) {
@@ -302,6 +302,54 @@ function deleteBlock(blockId) {
     const newData = {
         ...plannerData,
         blocks: plannerData.blocks.filter(function(b) { return b.id !== blockId; })
+    };
+
+    const saved = saveAll(newData);
+    if (!saved) return { success: false, error: "Could not save." };
+
+    plannerData = newData;
+    return { success: true };
+}
+
+// Swaps a block with its neighbor within its goal, then renumbers contiguously.
+// In: blockId, direction ("up" | "down")
+// Out: { success } or { success: false, error }
+// Does NOT touch assignedDate. Order and date are independent (Decision 8).
+function reorderBlock(blockId, direction) {
+    const block = plannerData.blocks.find(function(b) { return b.id === blockId; });
+    if (!block) return { success: false, error: "Task not found." };
+
+    // All blocks in this goal, sorted by current order
+    const siblings = plannerData.blocks
+        .filter(function(b) { return b.goalId === block.goalId; })
+        .sort(function(a, b) { return a.order - b.order; });
+
+    const index = siblings.findIndex(function(b) { return b.id === blockId; });
+    if (index === -1) return { success: false, error: "Task not found in its goal." };
+
+    if (direction === "up" && index === 0) return { success: true }; // already first
+    if (direction === "down" && index === siblings.length - 1) return { success: true }; // already last
+
+    // Swap with neighbor
+    const swapWith = direction === "up" ? index - 1 : index + 1;
+    const temp = siblings[index];
+    siblings[index] = siblings[swapWith];
+    siblings[swapWith] = temp;
+
+    // Renumber contiguously: 1, 2, 3, ... in the new array order
+    const orderById = new Map();
+    siblings.forEach(function(b, i) {
+        orderById.set(b.id, i + 1);
+    });
+
+    const newData = {
+        ...plannerData,
+        blocks: plannerData.blocks.map(function(b) {
+            if (orderById.has(b.id)) {
+                return { ...b, order: orderById.get(b.id) };
+            }
+            return b;
+        })
     };
 
     const saved = saveAll(newData);
