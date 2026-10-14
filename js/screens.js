@@ -15,6 +15,7 @@ function showView(viewId) {
     document.getElementById("todayView").style.display = "none";
     document.getElementById("goalsListView").style.display = "none";
     document.getElementById("goalDetailView").style.display = "none";
+    document.getElementById("settingsView").style.display = "none";
     document.getElementById(viewId).style.display = "block";
 }
 

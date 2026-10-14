@@ -14,6 +14,8 @@
 
         <p style="margin-top:24px;">
             <a href="#" id="seeAllGoalsLink">See all goals →</a>
+            &nbsp;·&nbsp;
+            <a href="#" id="settingsLink">Settings</a>
         </p>
     </div>
 
@@ -43,6 +45,17 @@
             <button id="addTaskBtn">Add Task</button>
             <button id="cancelEditBtn" style="display:none;">Cancel</button>
         </div>
+    </div>
+
+    <div id="settingsView" style="display:none;">
+        <p style="margin-bottom:8px;"><a href="#" id="backFromSettingsLink">← Today's View</a></p>
+        <h1>Settings</h1>
+
+        <h3>Backup</h3>
+        <p style="color:#888; font-size:0.9em;">
+            Download a backup of your goals and tasks. Keep it safe — you can restore from it if you ever lose your data.
+        </p>
+        <button id="exportBtn">Export backup</button>
     </div>
 
     <script src="js/date.js"></script>
