@@ -463,6 +463,15 @@ function parseBackup(text) {
     };
 }
 
+// Replaces the current in-memory data with new data (used by import).
+// Copy-then-save: only adopts if save succeeds.
+function applyImport(newData) {
+    const saved = saveAll(newData);
+    if (!saved) return { success: false, error: "Could not save. Storage may be full." };
+    plannerData = newData;
+    return { success: true };
+}
+
 // Builds the counts needed for the import confirm dialog.
 // Pure — takes the parsed result from parseBackup and the current data.
 // In: parsed (from parseBackup), currentData (the live plannerData)

@@ -95,6 +95,54 @@ document.getElementById("exportBtn").addEventListener("click", function() {
     URL.revokeObjectURL(url);
 });
 
+// Wire "Import backup" file input
+document.getElementById("importFileInput").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    file.text().then(function(text) {
+        const parsed = parseBackup(text);
+        if (!parsed.success) {
+            alert(parsed.error);
+            e.target.value = "";
+            return;
+        }
+
+        const preview = previewImport(parsed, getData());
+        const dateStr = formatIsoDateForDisplay(preview.exportedAt);
+
+        let msg = "This replaces your " + preview.currentGoals + " goals and " +
+                  preview.currentBlocks + " tasks with " + preview.incomingGoals +
+                  " goals and " + preview.incomingBlocks + " tasks from the backup dated " +
+                  dateStr + ".";
+        if (preview.droppedGoals > 0 || preview.droppedBlocks > 0) {
+            msg += "\n\nSkipped: " + preview.droppedGoals + " goals, " +
+                   preview.droppedBlocks + " tasks (invalid records).";
+        }
+
+        if (!confirm(msg)) {
+            e.target.value = "";
+            return;
+        }
+
+        const result = applyImport(parsed.data);
+        if (!result.success) {
+            alert(result.error);
+            e.target.value = "";
+            return;
+        }
+
+        currentGoalId = null;
+        editingBlockId = null;
+        renderTodayView();
+        showView("todayView");
+        e.target.value = "";
+    }).catch(function(err) {
+        alert("Could not read the file: " + err.message);
+        e.target.value = "";
+    });
+});
+
 // Wire "← Today's View" from the goals list
 document.getElementById("backToTodayLink").addEventListener("click", function(e) {
     e.preventDefault();
