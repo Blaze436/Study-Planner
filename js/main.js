@@ -152,3 +152,57 @@ document.getElementById("backToTodayLink").addEventListener("click", function(e)
     renderTodayView();
     showView("todayView");
 });
+
+// Quick-add task form on Today's View
+const quickAddForm = document.getElementById("quickAddForm");
+
+document.getElementById("quickAddBtn").addEventListener("click", function() {
+    const data = getData();
+    if (data.goals.length === 0) {
+        alert("Create a goal first.");
+        renderGoalList();
+        showView("goalsListView");
+        setTimeout(function() {
+            document.getElementById("goalTitleInput").focus();
+        }, 50);
+        return;
+    }
+
+    // Populate goal picker
+    const select = document.getElementById("quickAddGoal");
+    select.innerHTML = "";
+    getAllGoalsSorted(data).forEach(function(g) {
+        const opt = document.createElement("option");
+        opt.value = g.id;
+        opt.textContent = g.title;
+        select.appendChild(opt);
+    });
+
+    // Reset fields, default date to today
+    document.getElementById("quickAddTitle").value = "";
+    document.getElementById("quickAddDescription").value = "";
+    document.getElementById("quickAddDate").value = getTodayString();
+
+    quickAddForm.style.display = "block";
+    document.getElementById("quickAddTitle").focus();
+});
+
+document.getElementById("quickAddCancel").addEventListener("click", function() {
+    quickAddForm.style.display = "none";
+});
+
+document.getElementById("quickAddSave").addEventListener("click", function() {
+    const goalId = document.getElementById("quickAddGoal").value;
+    const title = document.getElementById("quickAddTitle").value;
+    const description = document.getElementById("quickAddDescription").value;
+    const date = document.getElementById("quickAddDate").value || null;
+
+    const result = createBlock(goalId, title, description, date);
+    if (!result.success) {
+        alert(result.error);
+        return;
+    }
+
+    quickAddForm.style.display = "none";
+    renderTodayView();
+});

@@ -276,6 +276,8 @@ function renderGoalDetail() {
 function renderTodayView() {
     document.getElementById("todayDate").textContent = formatDateForDisplay(getTodayString());
 
+    document.getElementById("quickAddForm").style.display = "none";
+
     const container = document.getElementById("todayTaskList");
     container.innerHTML = "";
 
