@@ -31,6 +31,7 @@ function normalizeData(raw) {
         if (!g || typeof g !== "object") { droppedGoals++; return; }
         if (typeof g.id !== "string" || g.id === "") { droppedGoals++; return; }
         if (typeof g.title !== "string" || g.title.trim() === "") { droppedGoals++; return; }
+        if (validGoalIds.has(g.id)) { droppedGoals++; return; } // duplicate goal id
 
         clean.goals.push({
             id: g.id,
@@ -40,32 +41,40 @@ function normalizeData(raw) {
         validGoalIds.add(g.id);
     });
 
-    // Pass 2a: find the highest valid order per goal, so blocks missing order
-    // can be placed after the existing ones instead of colliding at 1.
+    // Pass 2a: find the highest valid order per goal.
+    // Number.isFinite excludes NaN and Infinity — they count as missing.
     const maxOrderByGoal = new Map();
     rawBlocks.forEach(function(b) {
         if (!b || typeof b !== "object") return;
         if (typeof b.goalId !== "string" || !validGoalIds.has(b.goalId)) return;
-        if (typeof b.order !== "number") return;
+        if (!Number.isFinite(b.order)) return;
         const current = maxOrderByGoal.get(b.goalId) || 0;
         if (b.order > current) maxOrderByGoal.set(b.goalId, b.order);
     });
 
     // Pass 2b: validate blocks and assign orders
+    const seenBlockIds = new Set();
     rawBlocks.forEach(function(b) {
         if (!b || typeof b !== "object") { droppedBlocks++; return; }
         if (typeof b.id !== "string" || b.id === "") { droppedBlocks++; return; }
         if (typeof b.title !== "string" || b.title.trim() === "") { droppedBlocks++; return; }
         if (typeof b.goalId !== "string" || !validGoalIds.has(b.goalId)) { droppedBlocks++; return; }
+        if (seenBlockIds.has(b.id)) { droppedBlocks++; return; } // duplicate block id
 
         let order;
-        if (typeof b.order === "number") {
+        if (Number.isFinite(b.order)) {
             order = b.order;
         } else {
-            // Missing order: place it after the highest known order in that goal,
-            // and bump the goal's max so the next missing one doesn't collide.
+            // Missing/invalid order: place after the highest known in this goal.
             order = (maxOrderByGoal.get(b.goalId) || 0) + 1;
             maxOrderByGoal.set(b.goalId, order);
+        }
+
+        // If assignedDate exists but its shape is wrong, keep the task but
+        // treat it as unscheduled. Do not drop it.
+        let assignedDate = null;
+        if (typeof b.assignedDate === "string" && isValidDateString(b.assignedDate)) {
+            assignedDate = b.assignedDate;
         }
 
         clean.blocks.push({
@@ -73,12 +82,13 @@ function normalizeData(raw) {
             goalId: b.goalId,
             title: b.title.trim(),
             description: typeof b.description === "string" ? b.description : "",
-            assignedDate: typeof b.assignedDate === "string" ? b.assignedDate : null,
+            assignedDate: assignedDate,
             order: order,
             isCompleted: b.isCompleted === true,
             completedAt: typeof b.completedAt === "string" ? b.completedAt : null,
             createdAt: typeof b.createdAt === "string" ? b.createdAt : new Date().toISOString()
         });
+        seenBlockIds.add(b.id);
     });
 
     return { data: clean, droppedGoals, droppedBlocks };
