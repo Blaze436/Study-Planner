@@ -3,6 +3,7 @@ console.log("storage.js loaded");
 
 const STORAGE_KEY = "studyPlanner";
 const CORRUPT_KEY = "studyPlanner_corrupt";
+const META_KEY = "studyPlanner_meta";
 const CURRENT_SCHEMA_VERSION = 1;
 
 // Returns a fresh empty plannerData object. Never share one instance.
@@ -44,6 +45,31 @@ function saveAll(plannerData) {
         return true;
     } catch (error) {
         console.error("Save failed:", error);
+        return false;
+    }
+}
+
+// Loads the device-specific meta object. Returns {} if missing or unreadable.
+function loadMeta() {
+    try {
+        const raw = localStorage.getItem(META_KEY);
+        if (raw === null) return {};
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return {};
+        return parsed;
+    } catch (e) {
+        console.warn("Meta read failed:", e);
+        return {};
+    }
+}
+
+// Saves the meta object. Returns true on success.
+function saveMeta(meta) {
+    try {
+        localStorage.setItem(META_KEY, JSON.stringify(meta));
+        return true;
+    } catch (e) {
+        console.error("Meta save failed:", e);
         return false;
     }
 }

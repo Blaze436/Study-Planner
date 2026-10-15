@@ -5,6 +5,9 @@ console.log("main.js loaded");
 initData();
 renderTodayView();
 
+// Request persistent storage once. Browsers may grant or refuse silently.
+navigator.storage?.persist?.();
+
 // Wire the "Add Goal" button
 document.getElementById("addGoalBtn").addEventListener("click", function() {
     const input = document.getElementById("goalTitleInput");

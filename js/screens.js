@@ -279,6 +279,40 @@ function renderTodayView() {
     const container = document.getElementById("todayTaskList");
     container.innerHTML = "";
 
+    // First-run banner (dismissible, once)
+    const meta = loadMeta();
+    if (!meta.firstRunDismissed) {
+        const banner = document.createElement("div");
+        banner.style.padding = "10px";
+        banner.style.background = "#1e3a5f";
+        banner.style.border = "1px solid #2c5282";
+        banner.style.borderRadius = "6px";
+        banner.style.marginBottom = "12px";
+        banner.style.display = "flex";
+        banner.style.justifyContent = "space-between";
+        banner.style.alignItems = "flex-start";
+        banner.style.gap = "10px";
+
+        const bannerText = document.createElement("div");
+        bannerText.textContent = "Your data is saved on this device only. Back it up from Settings.";
+        bannerText.style.fontSize = "0.9em";
+        banner.appendChild(bannerText);
+
+        const dismissBtn = document.createElement("button");
+        dismissBtn.textContent = "×";
+        dismissBtn.title = "Dismiss";
+        dismissBtn.style.cssText = "background:none; border:none; color:#ccc; cursor:pointer; font-size:1.3em; padding:0 4px; line-height:1;";
+        dismissBtn.addEventListener("click", function() {
+            const m = loadMeta();
+            m.firstRunDismissed = true;
+            saveMeta(m);
+            renderTodayView();
+        });
+        banner.appendChild(dismissBtn);
+
+        container.appendChild(banner);
+    }
+
     const data = getData();
     const grouped = getTodayBlocks(data);
 
