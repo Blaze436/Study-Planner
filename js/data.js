@@ -418,10 +418,6 @@ function getAllGoalsSorted(data) {
     return [...data.goals].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
-// Builds a backup bundle from the current data.
-// Pure — does NOT save, does NOT touch storage or the DOM.
-// In: data (the current plannerData)
-// Out: a plain object ready to be JSON.stringify-ed and downloaded.
 function exportAll(data) {
     return {
         app: "study-planner",
@@ -429,5 +425,56 @@ function exportAll(data) {
         schemaVersion: data.schemaVersion,
         goals: data.goals,
         blocks: data.blocks
+    };
+}
+
+// Parses and validates a backup file's text content.
+// Pure — no storage, no DOM.
+// In: text (the raw string from the file)
+// Out: { success, data, droppedGoals, droppedBlocks, exportedAt } or { success: false, error }
+function parseBackup(text) {
+    let bundle;
+    try {
+        bundle = JSON.parse(text);
+    } catch (e) {
+        return { success: false, error: "That file isn't valid JSON." };
+    }
+
+    if (!bundle || typeof bundle !== "object") {
+        return { success: false, error: "That file isn't a Study Planner backup." };
+    }
+    if (bundle.app !== "study-planner") {
+        return { success: false, error: "That file isn't a Study Planner backup." };
+    }
+    if (!Number.isFinite(bundle.schemaVersion)) {
+        return { success: false, error: "Backup is missing a valid schema version." };
+    }
+    if (bundle.schemaVersion > CURRENT_SCHEMA_VERSION) {
+        return { success: false, error: "This backup was created by a newer version of the app. Please update." };
+    }
+
+    const result = normalizeData(bundle);
+    return {
+        success: true,
+        data: result.data,
+        droppedGoals: result.droppedGoals,
+        droppedBlocks: result.droppedBlocks,
+        exportedAt: typeof bundle.exportedAt === "string" ? bundle.exportedAt : null
+    };
+}
+
+// Builds the counts needed for the import confirm dialog.
+// Pure — takes the parsed result from parseBackup and the current data.
+// In: parsed (from parseBackup), currentData (the live plannerData)
+// Out: { incomingGoals, incomingBlocks, currentGoals, currentBlocks, droppedGoals, droppedBlocks, exportedAt }
+function previewImport(parsed, currentData) {
+    return {
+        incomingGoals: parsed.data.goals.length,
+        incomingBlocks: parsed.data.blocks.length,
+        currentGoals: currentData.goals.length,
+        currentBlocks: currentData.blocks.length,
+        droppedGoals: parsed.droppedGoals,
+        droppedBlocks: parsed.droppedBlocks,
+        exportedAt: parsed.exportedAt
     };
 }
