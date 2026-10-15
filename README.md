@@ -7,6 +7,8 @@ Built as a long-term foundation inspired by a four-year paper planning system.
 The app provides flexible primitives (goals, tasks, dates, order) rather than
 prescribing a rigid workflow.
 
+**Live:** https://blaze436.github.io/Study-Planner/
+
 **Status:** In active development. The MVP is not complete yet.
 
 ## Stack

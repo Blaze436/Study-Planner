@@ -487,5 +487,51 @@ Architect flagged inconsistencies after commit. Fixed:
 - `isValidDateString` checks shape only (`YYYY-MM-DD`), not calendar validity. Revisit if untrusted import sources appear.
 - The `order` default for missing values is now highest-in-goal + 1, not a fixed `1`.
 
+---
+
+## Day 10 — Hardened Normalize, Import, Deploy, Extra Polish
+**Date:** 15 October 2026
+**Time spent:** 4 hours
+
+### What I did
+
+**Study Planner:**
+- Hardened `normalizeData`: duplicate goal/block ids now drop (first wins), `Number.isFinite` replaces `typeof === "number"` for `order` so NaN/Infinity count as missing, invalid `assignedDate` is nulled instead of dropping the task.
+- Added `parseBackup(text)` and `previewImport(parsed, currentData)` in `js/data.js` — both pure.
+- Added `applyImport(newData)` using the copy-then-save pattern.
+- Added `formatIsoDateForDisplay(iso)` in `js/date.js` to convert ISO timestamps without the UTC slice trap.
+- Built the Import UI in Settings: file input, error surfacing, count-based confirm dialog, apply + reset + re-render.
+- Round-trip test passed: export → clear localStorage → import → all states preserved (completed, unscheduled, reordered).
+- Deployed to GitHub Pages: https://blaze436.github.io/Study-Planner/
+- Added `loadMeta` / `saveMeta` in `js/storage.js` for the `studyPlanner_meta` key.
+- Added a dismissible first-run banner on Today's View; dismissal persists.
+- Called `navigator.storage.persist()` on startup.
+- Added a floating "+" on Today's View with a quick-add form (goal picker, title, description, date defaulting to today). Empty-goals case routes to the goal list.
+- Fixed a bug: quick-add form persisted when leaving and returning to Today's View.
+
+### What worked
+- Hardened normalizeData passed all four edge cases on the first console run.
+- Import preview counts matched reality; the confirm dialog is honest about what will be skipped.
+- Round-trip test passed on the first attempt — completed, unscheduled, and reordered states all survived.
+- Deploy was clean; app works in mobile format.
+
+### What I learned
+- **The UTC slice trap strikes again.** `iso.slice(0,10)` would have shown the wrong date; using local getters is the correct pattern.
+- **`typeof x === "number"` accepts NaN.** `Number.isFinite(x)` is the safe check for "is this actually a usable number."
+- **A file input with `accept=".json"` filters at the OS level.** Good for users, and it hides the "wrong file" case without hiding the error path (which still exists for renamed files).
+- **Deploying early keeps momentum.** Seeing the app on the phone turns abstract work into something real.
+- **Cascading form state is easy to forget.** The quick-add form lived outside the container that gets wiped on re-render — a small bug that only shows up after navigation.
+
+### What confused me
+- Briefly, whether `parseBackup` should return the raw bundle or the normalized data. Kept it normalized, since import should never trust raw file contents.
+
+### Design decisions locked in
+- Import confirm dialog wording: "This replaces your X goals and Y tasks with A goals and B tasks from the backup dated ..."
+- `studyPlanner_meta` is device state, never exported.
+- First-run banner text: "Your data is saved on this device only. Back it up from Settings."
+- Quick-add date defaults to today; the goal-picker is a required select.
+
+---
+
 ### Honesty note (updated Oct 14)
 Across the whole build, I've written every file myself, with the Claude explaining concepts (fresh objects, spread-before-sort, copy-then-save, blob downloads) and DeepSeek providing paste-ready slices for the small, well-defined pieces (exportAll, reorderBlock, isValidDateString, the download wiring). I understand each function's inputs, outputs, and purpose before committing it.
