@@ -76,6 +76,13 @@
             Import a backup file. This replaces your current goals and tasks.
         </p>
         <input type="file" id="importFileInput" accept=".json">
+
+        <h3 style="margin-top:24px;">Safety snapshot</h3>
+        <p style="color:#888; font-size:0.9em;">
+            Before any import or goal deletion, the app saves a snapshot of your current data. You can restore from that snapshot here.
+        </p>
+        <button id="restoreSnapshotBtn">Restore previous data</button>
+        <p id="snapshotInfo" style="color:#888; font-size:0.85em; margin-top:8px;"></p>
     </div>
 
     <script src="js/date.js"></script>

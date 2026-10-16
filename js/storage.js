@@ -4,6 +4,7 @@ console.log("storage.js loaded");
 const STORAGE_KEY = "studyPlanner";
 const CORRUPT_KEY = "studyPlanner_corrupt";
 const META_KEY = "studyPlanner_meta";
+const PREV_KEY = "studyPlanner_prev";
 const CURRENT_SCHEMA_VERSION = 1;
 
 // Returns a fresh empty plannerData object. Never share one instance.
@@ -70,6 +71,42 @@ function saveMeta(meta) {
         return true;
     } catch (e) {
         console.error("Meta save failed:", e);
+        return false;
+    }
+}
+
+// Saves the previous-state snapshot. Returns true on success.
+function savePrevSnapshot(wrapper) {
+    try {
+        localStorage.setItem(PREV_KEY, JSON.stringify(wrapper));
+        return true;
+    } catch (e) {
+        console.error("Prev snapshot save failed:", e);
+        return false;
+    }
+}
+
+// Loads the previous-state snapshot. Returns null if missing or unreadable.
+function loadPrevSnapshot() {
+    try {
+        const raw = localStorage.getItem(PREV_KEY);
+        if (raw === null) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return null;
+        return parsed;
+    } catch (e) {
+        console.warn("Prev snapshot read failed:", e);
+        return null;
+    }
+}
+
+// Removes the previous-state snapshot.
+function clearPrevSnapshot() {
+    try {
+        localStorage.removeItem(PREV_KEY);
+        return true;
+    } catch (e) {
+        console.error("Prev snapshot clear failed:", e);
         return false;
     }
 }

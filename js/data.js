@@ -170,6 +170,11 @@ function updateGoal(goalId, newTitle) {
 
 // Deletes a goal AND its blocks. Returns { success, deletedBlocks }.
 function deleteGoal(goalId) {
+    const goal = plannerData.goals.find(function(g) { return g.id === goalId; });
+    if (!goal) return { success: false, error: "Goal not found." };
+
+    snapshotBeforeDestructive("before deleting goal \"" + goal.title + "\"");
+
     const blocksToDelete = plannerData.blocks.filter(function(b) { return b.goalId === goalId; }).length;
 
     const newData = {
@@ -466,6 +471,7 @@ function parseBackup(text) {
 // Replaces the current in-memory data with new data (used by import).
 // Copy-then-save: only adopts if save succeeds.
 function applyImport(newData) {
+    snapshotBeforeDestructive("before import");
     const saved = saveAll(newData);
     if (!saved) return { success: false, error: "Could not save. Storage may be full." };
     plannerData = newData;
@@ -486,4 +492,36 @@ function previewImport(parsed, currentData) {
         droppedBlocks: parsed.droppedBlocks,
         exportedAt: parsed.exportedAt
     };
+}
+
+// Takes a safety snapshot of the current data before a destructive operation.
+// Overwrites any existing snapshot. Returns true on success.
+function snapshotBeforeDestructive(reason) {
+    return savePrevSnapshot({
+        savedAt: new Date().toISOString(),
+        reason: reason,
+        data: plannerData
+    });
+}
+
+// Returns the safety snapshot, or null. Shape: { savedAt, reason, data }
+function getPrevSnapshot() {
+    return loadPrevSnapshot();
+}
+
+// Restores the current data from the safety snapshot.
+// Clears the snapshot on success so it can't be restored twice in a row.
+function restoreFromSnapshot() {
+    const wrapper = loadPrevSnapshot();
+    if (!wrapper || !wrapper.data) {
+        return { success: false, error: "No snapshot to restore." };
+    }
+
+    const result = normalizeData(wrapper.data);
+    const saved = saveAll(result.data);
+    if (!saved) return { success: false, error: "Could not save. Storage may be full." };
+
+    plannerData = result.data;
+    clearPrevSnapshot();
+    return { success: true, data: plannerData };
 }

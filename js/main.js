@@ -71,6 +71,7 @@ document.getElementById("seeAllGoalsLink").addEventListener("click", function(e)
 // Wire "Settings" link on Today's View
 document.getElementById("settingsLink").addEventListener("click", function(e) {
     e.preventDefault();
+    updateSnapshotInfo();
     showView("settingsView");
 });
 
@@ -205,4 +206,48 @@ document.getElementById("quickAddSave").addEventListener("click", function() {
 
     quickAddForm.style.display = "none";
     renderTodayView();
+});
+
+// Updates the "snapshot info" text in Settings.
+function updateSnapshotInfo() {
+    const el = document.getElementById("snapshotInfo");
+    const wrapper = getPrevSnapshot();
+    if (!wrapper || !wrapper.savedAt || !wrapper.data) {
+        el.textContent = "No snapshot available yet.";
+        return;
+    }
+    const when = formatIsoDateForDisplay(wrapper.savedAt);
+    const goalCount = (wrapper.data.goals || []).length;
+    const blockCount = (wrapper.data.blocks || []).length;
+    el.textContent = "Snapshot from " + when + ": " + goalCount + " goals, " + blockCount + " tasks.";
+}
+
+// Wire "Restore previous data" button
+document.getElementById("restoreSnapshotBtn").addEventListener("click", function() {
+    const wrapper = getPrevSnapshot();
+    if (!wrapper || !wrapper.data) {
+        alert("No snapshot to restore.");
+        return;
+    }
+
+    const when = formatIsoDateForDisplay(wrapper.savedAt);
+    const goalCount = (wrapper.data.goals || []).length;
+    const blockCount = (wrapper.data.blocks || []).length;
+    const current = getData();
+
+    const msg = "This replaces your current " + current.goals.length + " goals and " +
+                current.blocks.length + " tasks with the snapshot from " + when +
+                " (" + goalCount + " goals, " + blockCount + " tasks).";
+    if (!confirm(msg)) return;
+
+    const result = restoreFromSnapshot();
+    if (!result.success) {
+        alert(result.error);
+        return;
+    }
+
+    currentGoalId = null;
+    editingBlockId = null;
+    renderTodayView();
+    showView("todayView");
 });
