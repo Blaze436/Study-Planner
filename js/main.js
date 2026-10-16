@@ -82,8 +82,8 @@ document.getElementById("backFromSettingsLink").addEventListener("click", functi
     showView("todayView");
 });
 
-// Wire "Export backup" button
-document.getElementById("exportBtn").addEventListener("click", function() {
+// Builds a JSON string of the current data and triggers a download.
+function downloadBackup() {
     const bundle = exportAll(getData());
     const json = JSON.stringify(bundle, null, 2);
     const blob = new Blob([json], { type: "application/json" });
@@ -97,6 +97,35 @@ document.getElementById("exportBtn").addEventListener("click", function() {
     document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
+}
+
+// Wire "Export backup" button.
+// On phones that support sharing files, opens the share sheet so the backup
+// can go straight to WhatsApp / Drive / email. Otherwise, downloads the file.
+document.getElementById("exportBtn").addEventListener("click", function() {
+    const bundle = exportAll(getData());
+    const json = JSON.stringify(bundle, null, 2);
+    const filename = "study-planner-backup-" + getTodayString() + ".json";
+
+    if (typeof navigator.canShare === "function" && typeof File === "function") {
+        try {
+            const file = new File([json], filename, { type: "application/json" });
+            if (navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    files: [file],
+                    title: "Study Planner backup"
+                }).catch(function(err) {
+                    if (err && err.name === "AbortError") return; // user cancelled
+                    downloadBackup(); // any other error — fall back
+                });
+                return;
+            }
+        } catch (e) {
+            // File construction or canShare threw — fall through to download
+        }
+    }
+
+    downloadBackup();
 });
 
 // Wire "Import backup" file input
