@@ -533,5 +533,50 @@ Architect flagged inconsistencies after commit. Fixed:
 
 ---
 
-### Honesty note (updated Oct 14)
+## Day 11 — Safety Snapshot, Share Sheet, Launch Retrospective
+**Date:** 16 October 2026
+**Time spent:** 4 hours
+
+### What I did
+
+**Driver app:**
+- Wrote a launch campaign retrospective in `POST_DEV.md`: numbers across YouTube Shorts, TikTok, Instagram, Facebook; GA4 counts; what worked and didn't; five changes for next time.
+- Handed off to maintenance mode: reply to comments, log feedback, occasional post, no new features until the Planner MVP ships.
+
+**Study Planner:**
+- Added `savePrevSnapshot` / `loadPrevSnapshot` / `clearPrevSnapshot` in `js/storage.js` for the `studyPlanner_prev` key.
+- Added `snapshotBeforeDestructive(reason)`, `getPrevSnapshot()`, and `restoreFromSnapshot()` in `js/data.js`.
+- Snapshots are taken before `deleteGoal` and before `applyImport`, so a wrong tap is recoverable.
+- Added a "Safety snapshot" section in Settings: shows saved-at date and record counts, with a "Restore previous data" button.
+- Added a share-sheet export path: build a `File` from the JSON, check `navigator.canShare({ files })`, call `navigator.share` if supported, fall back to the download on any non-cancel error.
+- Added an "Add to Home Screen" note in Settings (text only).
+
+### What worked
+- The single-slot snapshot is a good fit for the MVP. Simple, one key, no bookkeeping.
+- Snapshot info text makes the state visible without cluttering the UI.
+- Restoring clears the snapshot, so double-restore is impossible.
+- All four snapshot test cases passed on the first run: delete, import, no-snapshot, and overwrite.
+- Share-sheet path falls through to download on desktop, so nothing regressed.
+
+### What I learned
+- **Safety nets are a Tier 2 item for a reason, but the wrong tap on a destructive action is a real risk.** Import is one click that replaces everything. That one-click warrants a snapshot even in a minimal MVP.
+- **The share sheet is a different shape from a download.** A Blob has no name; `navigator.share` needs a `File`. That's why `File` exists on top of `Blob`.
+- **`AbortError` means the user cancelled, not that something failed.** Treating it as an error would fall back to download and surprise the user. Cancel should be silent.
+- **Feature detection with two checks beats a version check.** `typeof navigator.canShare === "function" && typeof File === "function"` covers browsers that have one but not the other.
+- **The single-slot snapshot has a known limit.** Deleting A then B loses A's snapshot. That's acceptable for MVP. A queue would be the post-MVP upgrade if users report it.
+
+### What confused me
+- Whether restoring should clear the snapshot. Cleared it, because otherwise restore becomes a toggle between two states, which is confusing. The user can always snapshot again by doing another destructive action.
+
+### Design decisions locked in
+- Snapshot shape: `{ savedAt, reason, data }`. Reason is human-readable for future debugging.
+- Snapshot is taken before delete-goal and before import, nothing else.
+- Restore clears the snapshot on success.
+- Settings shows the snapshot's savedAt date and record counts so the user knows what they'd be restoring to.
+- Share-sheet export: try share, cancel silently on AbortError, download on any other failure.
+- "Add to Home Screen" note is text only, no auto-detect.
+
+---
+
+### Honesty note (updated Oct 16)
 Across the whole build, I've written every file myself, with the Claude explaining concepts (fresh objects, spread-before-sort, copy-then-save, blob downloads) and DeepSeek providing paste-ready slices for the small, well-defined pieces (exportAll, reorderBlock, isValidDateString, the download wiring). I understand each function's inputs, outputs, and purpose before committing it.
