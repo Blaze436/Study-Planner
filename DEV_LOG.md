@@ -578,5 +578,52 @@ Architect flagged inconsistencies after commit. Fixed:
 
 ---
 
-### Honesty note (updated Oct 16)
-Across the whole build, I've written every file myself, with the Claude explaining concepts (fresh objects, spread-before-sort, copy-then-save, blob downloads) and DeepSeek providing paste-ready slices for the small, well-defined pieces (exportAll, reorderBlock, isValidDateString, the download wiring). I understand each function's inputs, outputs, and purpose before committing it.
+## Day 12 — Styling Foundation, Recovery, and Backup Reminders
+**Date:** 17 October 2026
+**Time spent:** ~4 hours
+
+### What I did
+
+**Planner safety fixes:**
+- `deleteGoal`, `deleteBlock`, and `applyImport` now abort if `snapshotBeforeDestructive` fails (e.g., storage is full), preventing data loss without a safety net.
+- Added a warning to the Restore confirm dialog: "Anything you've added or changed since that snapshot will be lost."
+
+**Styling Foundation:**
+- Created `css/styles.css` with CSS variables for colors, spacing, and radii.
+- Added a `max-width: 600px` centered container to simulate a mobile app on desktop.
+- Created base styles for inputs (16px font-size to prevent iOS zoom), buttons, and typography.
+- Created reusable classes (`.row`, `.card`, `.banner`, `.fab`, `.action-btn`, `.task-done`).
+- Linked the stylesheet in `index.html` and removed all inline styles.
+- Refactored `renderTodayView`, `renderGoalList`, and `renderGoalDetail` in `js/screens.js` to use `className` assignments instead of `style.x = ...`.
+- Used Chrome DevTools (F12) Device Mode to verify the mobile layout.
+
+**Durability Extras:**
+- Added a `FileReader` fallback in `main.js` for older browsers that don't support `file.text()`.
+- Moved `navigator.storage.persist()` to fire only after the user creates their first goal (reduces Firefox prompt friction).
+- Added a recovery mechanism: if `normalizeData` drops invalid records on load, the raw data is saved to `studyPlanner_recovery` and a "Download raw data" button appears in Settings.
+- Added a backup reminder banner: if `lastBackupAt` is missing or older than 7 days, an amber banner shows on Today's View. Dismissible per day via `reminderDismissedUntil`.
+
+### What worked
+- Separating CSS from JS made `screens.js` significantly cleaner and easier to read.
+- DevTools device mode was a perfect substitute for a real phone test.
+- The recovery mechanism passed once I correctly simulated a dropped record (empty string vs `"null"` string).
+- The 7-day backup logic is simple and doesn't require a background process.
+
+### What I learned
+- **CSS classes beat inline styles for maintainability.** A single change in `styles.css` updates every element, whereas inline styles require hunting through JS files.
+- **`typeof x === "string"` means `"null"` passes validation.** I initially tried to test the recovery feature by typing `"null"` into DevTools, but it was treated as a valid string. An empty string (`""`) correctly triggers the drop.
+- **The share sheet needs a `File`, not a Blob.** On mobile, `navigator.canShare` requires a `File` object to share a JSON backup to WhatsApp/Drive.
+- **Persistent storage requests should be deferred.** Asking immediately on load is aggressive; asking after the first goal is created feels earned.
+
+### What confused me
+- Why the recovery section wasn't showing during testing until I realized I typed `"null"` (a string) instead of deleting the title or leaving it empty.
+
+### Design decisions locked in
+- All inline styles are removed from the HTML and JS; styling lives entirely in `css/styles.css`.
+- The backup reminder banner is amber (`#d97706`) to distinguish it from the blue first-run banner.
+- Recovery data is downloaded as `study-planner-recovery-YYYY-MM-DD.json`.
+
+---
+
+### Honesty note (updated Oct 17)
+Across the whole build, I wrote the structure, integration, and tests. DeepSeek generated these pieces, which I reviewed and understand: `exportAll`, `reorderBlock`, `isValidDateString`, the download wiring, the safety snapshot logic, the share-sheet pattern, the recovery data download, and the backup reminder logic.
