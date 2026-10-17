@@ -1,0 +1,205 @@
+/* css/styles.css */
+:root {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --text: #e0e0e0;
+    --muted: #888888;
+    --primary: #4a5568;
+    --primary-hover: #2d3748;
+    --danger: #e53e3e;
+    --blue-bg: #1e3a5f;
+    --blue-border: #2c5282;
+    --row-bg: #252a33;
+    --row-border: #3a3f4a;
+    --radius: 8px;
+    --spacing: 16px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: var(--spacing);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+h1, h2, h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
+a {
+    color: #63b3ed;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Inputs & Buttons */
+input[type="text"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px; /* Prevents iOS zoom */
+    background-color: var(--surface);
+    border: 1px solid var(--row-border);
+    color: var(--text);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+}
+
+button {
+    font-size: 16px;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    background-color: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--row-border);
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.btn-danger {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: transparent;
+}
+
+/* Utilities */
+.muted {
+    color: var(--muted);
+    font-size: 0.9em;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--row-border);
+    gap: 10px;
+}
+
+.task-text {
+    flex: 1;
+}
+
+.task-done {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* Components */
+.banner {
+    padding: 12px;
+    background-color: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: var(--radius);
+    margin-bottom: var(--spacing);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    font-size: 28px;
+    line-height: 1;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    padding: var(--spacing);
+    border: 1px solid var(--row-border);
+    border-radius: var(--radius);
+    margin-bottom: var(--spacing);
+}
+
+.missed-row {
+    padding: 10px;
+    margin-bottom: 6px;
+    background-color: var(--row-bg);
+    border: 1px solid var(--row-border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Goals List & Detail */
+.goal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--row-border);
+    gap: 10px;
+}
+
+.goal-title {
+    font-size: 1.1em;
+    cursor: pointer;
+    text-decoration: underline;
+    flex: 1;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action-btn {
+    padding: 4px 8px;
+    font-size: 0.8em;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--row-border);
+}
+
+.action-btn:hover {
+    background: var(--primary-hover);
+}
+
+.action-btn.danger {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.action-btn.danger:hover {
+    background: rgba(229, 62, 62, 0.1);
+}

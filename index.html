@@ -4,21 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Study Planner</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div id="todayView">
         <h1>Today</h1>
         <p id="todayDate" style="color:#888; font-size:0.9em; margin-top:-10px;"></p>
 
-        <div id="quickAddForm" style="display:none; margin-bottom:16px; padding:12px; border:1px solid #444; border-radius:6px;">
+        <div id="quickAddForm" style="display:none;" class="card">
             <h3 style="margin-top:0;">New Task</h3>
-            <label style="display:block; font-size:0.85em; color:#aaa; margin-bottom:4px;">Goal</label>
-            <select id="quickAddGoal" style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box;"></select>
-            <input type="text" id="quickAddTitle" placeholder="Task title" style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box;">
-            <input type="text" id="quickAddDescription" placeholder="Description (optional)" style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box;">
-            <label style="display:block; font-size:0.85em; color:#aaa; margin-bottom:4px;">Date</label>
-            <input type="date" id="quickAddDate" style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box;">
-            <button id="quickAddSave">Add Task</button>
+            <label class="muted" style="display:block; margin-bottom:4px;">Goal</label>
+            <select id="quickAddGoal"></select>
+            <input type="text" id="quickAddTitle" placeholder="Task title">
+            <input type="text" id="quickAddDescription" placeholder="Description (optional)">
+            <label class="muted" style="display:block; margin-bottom:4px;">Date</label>
+            <input type="date" id="quickAddDate">
+            <button id="quickAddSave" class="btn-primary">Add Task</button>
             <button id="quickAddCancel" style="margin-left:8px;">Cancel</button>
         </div>
 
@@ -30,7 +31,7 @@
             <a href="#" id="settingsLink">Settings</a>
         </p>
 
-        <button id="quickAddBtn" title="Add task" style="position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; background:#4a5568; color:white; border:none; font-size:28px; line-height:1; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.4);">+</button>
+        <button id="quickAddBtn" title="Add task" class="fab">+</button>
     </div>
 
     <div id="goalsListView" style="display:none;">
@@ -52,11 +53,11 @@
         <div id="goalTaskList"></div>
 
         <h3>Add Task</h3>
-        <div>
+        <div class="card">
             <input type="text" id="newTaskTitle" placeholder="Task title">
             <input type="text" id="newTaskDescription" placeholder="Description (optional)">
             <input type="date" id="newTaskDate">
-            <button id="addTaskBtn">Add Task</button>
+            <button id="addTaskBtn" class="btn-primary">Add Task</button>
             <button id="cancelEditBtn" style="display:none;">Cancel</button>
         </div>
     </div>
