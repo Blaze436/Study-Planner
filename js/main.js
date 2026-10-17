@@ -1,14 +1,23 @@
 // js/main.js
 console.log("main.js loaded");
 
+// Helper for older browsers that don't support file.text()
+function readFileAsText(file) {
+    if (typeof file.text === "function") {
+        return file.text();
+    }
+    return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        reader.onload = function(e) { resolve(e.target.result); };
+        reader.onerror = function(e) { reject(e.target.error); };
+        reader.readAsText(file);
+    });
+}
+
 // Startup sequence
 initData();
 renderTodayView();
 
-// Request persistent storage once. Browsers may grant or refuse silently.
-navigator.storage?.persist?.();
-
-// Wire the "Add Goal" button
 document.getElementById("addGoalBtn").addEventListener("click", function() {
     const input = document.getElementById("goalTitleInput");
     const result = createGoal(input.value);
@@ -18,8 +27,32 @@ document.getElementById("addGoalBtn").addEventListener("click", function() {
         return;
     }
 
+    // Ask for persistent storage once the user has actually created data
+    if (getData().goals.length === 1) {
+        navigator.storage?.persist?.();
+    }
+
     input.value = "";
     renderGoalList();
+});
+
+// Check for recovery data on load
+const rawRecovery = getRecovery();
+if (rawRecovery) {
+    document.getElementById("recoverySection").style.display = "block";
+}
+
+// Wire download recovery
+document.getElementById("downloadRecoveryBtn").addEventListener("click", function() {
+    const blob = new Blob([rawRecovery], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "study-planner-recovery-" + getTodayString() + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 });
 
 // Wire the "Back to goals" button
@@ -97,6 +130,10 @@ function downloadBackup() {
     document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
+
+    const meta = loadMeta();
+    meta.lastBackupAt = new Date().toISOString();
+    saveMeta(meta);
 }
 
 // Wire "Export backup" button.
@@ -114,9 +151,13 @@ document.getElementById("exportBtn").addEventListener("click", function() {
                 navigator.share({
                     files: [file],
                     title: "Study Planner backup"
+                }).then(function() {
+                    const meta = loadMeta();
+                    meta.lastBackupAt = new Date().toISOString();
+                    saveMeta(meta);
                 }).catch(function(err) {
-                    if (err && err.name === "AbortError") return; // user cancelled
-                    downloadBackup(); // any other error — fall back
+                    if (err && err.name === "AbortError") return;
+                    downloadBackup();
                 });
                 return;
             }

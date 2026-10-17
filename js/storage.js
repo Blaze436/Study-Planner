@@ -110,3 +110,17 @@ function clearPrevSnapshot() {
         return false;
     }
 }
+
+const RECOVERY_KEY = "studyPlanner_recovery";
+
+function saveRecovery(rawData) {
+    try { localStorage.setItem(RECOVERY_KEY, rawData); } catch (e) {}
+}
+
+function getRecovery() {
+    try { return localStorage.getItem(RECOVERY_KEY); } catch (e) { return null; }
+}
+
+function clearRecovery() {
+    try { localStorage.removeItem(RECOVERY_KEY); } catch (e) {}
+}

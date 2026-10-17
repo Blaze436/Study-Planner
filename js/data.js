@@ -94,7 +94,7 @@ function normalizeData(raw) {
     return { data: clean, droppedGoals, droppedBlocks };
 }
 
-// Initializes the in-memory data from storage, normalizing it and dropping invalid records.
+// Initializes the in-memory data from storage...
 function initData() {
     const loaded = loadAll();
     const result = normalizeData(loaded);
@@ -104,6 +104,7 @@ function initData() {
             "Dropped invalid records:",
             result.droppedGoals, "goals,", result.droppedBlocks, "blocks"
         );
+        saveRecovery(JSON.stringify(loaded));
     }
     return plannerData;
 }

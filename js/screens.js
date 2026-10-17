@@ -276,6 +276,46 @@ function renderTodayView() {
         container.appendChild(banner);
     }
 
+    // Backup reminder
+    const todayStr = getTodayString();
+    let showBackupReminder = false;
+
+    if (meta.reminderDismissedUntil !== todayStr) {
+        if (!meta.lastBackupAt) {
+            showBackupReminder = true;
+        } else {
+            const last = new Date(meta.lastBackupAt);
+            const diffDays = (new Date() - last) / (1000 * 60 * 60 * 24);
+            if (diffDays >= 7) {
+                showBackupReminder = true;
+            }
+        }
+    }
+
+    if (showBackupReminder) {
+        const reminder = document.createElement("div");
+        reminder.className = "banner";
+        reminder.style.backgroundColor = "#d97706"; // Amber warning
+        reminder.style.borderColor = "#b45309";
+
+        const reminderText = document.createElement("div");
+        reminderText.textContent = "It's been a while since your last backup. Go to Settings to export your data.";
+        reminder.appendChild(reminderText);
+
+        const dismissBtn = document.createElement("button");
+        dismissBtn.textContent = "×";
+        dismissBtn.style.cssText = "background:none; border:none; color:#fff; cursor:pointer; font-size:1.3em; padding:0 4px; line-height:1;";
+        dismissBtn.addEventListener("click", function() {
+            const m = loadMeta();
+            m.reminderDismissedUntil = todayStr;
+            saveMeta(m);
+            renderTodayView();
+        });
+        reminder.appendChild(dismissBtn);
+
+        container.appendChild(reminder);
+    }
+
     const data = getData();
     const grouped = getTodayBlocks(data);
 
