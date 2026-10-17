@@ -266,7 +266,7 @@ document.getElementById("restoreSnapshotBtn").addEventListener("click", function
 
     const msg = "This replaces your current " + current.goals.length + " goals and " +
                 current.blocks.length + " tasks with the snapshot from " + when +
-                " (" + goalCount + " goals, " + blockCount + " tasks).";
+                " (" + goalCount + " goals, " + blockCount + " tasks).\n\nAnything you've added or changed since that snapshot will be lost.";
     if (!confirm(msg)) return;
 
     const result = restoreFromSnapshot();

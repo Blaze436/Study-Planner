@@ -173,7 +173,10 @@ function deleteGoal(goalId) {
     const goal = plannerData.goals.find(function(g) { return g.id === goalId; });
     if (!goal) return { success: false, error: "Goal not found." };
 
-    snapshotBeforeDestructive("before deleting goal \"" + goal.title + "\"");
+    const snapshotSaved = snapshotBeforeDestructive("before deleting goal \"" + goal.title + "\"");
+    if (!snapshotSaved) {
+        return { success: false, error: "Could not save a safety snapshot. Deletion cancelled to protect your data." };
+    }
 
     const blocksToDelete = plannerData.blocks.filter(function(b) { return b.goalId === goalId; }).length;
 
@@ -313,6 +316,12 @@ function updateBlock(blockId, updates) {
 function deleteBlock(blockId) {
     const exists = plannerData.blocks.some(function(b) { return b.id === blockId; });
     if (!exists) return { success: false, error: "Task not found." };
+
+    const block = plannerData.blocks.find(function(b) { return b.id === blockId; });
+    const snapshotSaved = snapshotBeforeDestructive("before deleting task \"" + block.title + "\"");
+    if (!snapshotSaved) {
+        return { success: false, error: "Could not save a safety snapshot. Deletion cancelled to protect your data." };
+    }
 
     const newData = {
         ...plannerData,
