@@ -13,11 +13,11 @@
 
         <div id="quickAddForm" style="display:none;" class="card">
             <h3 style="margin-top:0;">New Task</h3>
-            <label class="muted" style="display:block; margin-bottom:4px;">Goal</label>
+            <label class="form-label" for="quickAddGoal">Goal</label>
             <select id="quickAddGoal"></select>
             <input type="text" id="quickAddTitle" placeholder="Task title">
             <input type="text" id="quickAddDescription" placeholder="Description (optional)">
-            <label class="muted" style="display:block; margin-bottom:4px;">Date</label>
+            <label class="form-label" for="quickAddDate">Date</label>
             <input type="date" id="quickAddDate">
             <button id="quickAddSave" class="btn-primary">Add Task</button>
             <button id="quickAddCancel" style="margin-left:8px;">Cancel</button>
@@ -67,23 +67,23 @@
         <h1>Settings</h1>
 
         <h3>Backup</h3>
-        <p style="color:#888; font-size:0.9em;">
+        <p class="muted">
             Download a backup of your goals and tasks. Keep it safe — you can restore from it if you ever lose your data.
         </p>
-        <button id="exportBtn">Export backup</button>
+        <button id="exportBtn" class="btn-primary">Export backup</button>
 
         <h3 style="margin-top:24px;">Restore</h3>
-        <p style="color:#888; font-size:0.9em;">
+        <p class="muted">
             Import a backup file. This replaces your current goals and tasks.
         </p>
         <input type="file" id="importFileInput" accept=".json">
 
         <h3 style="margin-top:24px;">Safety snapshot</h3>
-        <p style="color:#888; font-size:0.9em;">
+        <p class="muted">
             Before any import or goal deletion, the app saves a snapshot of your current data. You can restore from that snapshot here.
         </p>
         <button id="restoreSnapshotBtn">Restore previous data</button>
-        <p id="snapshotInfo" style="color:#888; font-size:0.85em; margin-top:8px;"></p>
+        <p id="snapshotInfo" class="muted" style="margin-top:8px; font-size:0.85em;"></p>
 
         <div id="recoverySection" style="display:none; margin-top:24px;">
             <h3>Recovered Data</h3>
@@ -94,10 +94,10 @@
         </div>
 
         <h3 style="margin-top:24px;">Add to Home Screen</h3>
-        <p style="color:#888; font-size:0.9em;">
+        <p class="muted">
             Adding the app to your home screen can help your browser keep your data safe and makes it easier to open.
         </p>
-        <p style="color:#888; font-size:0.9em;">
+        <p class="muted">
             <strong>Chrome:</strong> tap ⋮ → Add to Home screen.<br>
             <strong>Safari:</strong> tap Share → Add to Home Screen.
         </p>

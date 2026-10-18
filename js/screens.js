@@ -82,7 +82,17 @@ function renderGoalList() {
             const blocksCount = getBlocksForGoal(getData(), goal.id).length;
             const msg = "Delete " + goal.title + " and its " + blocksCount + " tasks?";
             if (!confirm(msg)) return;
-            const result = deleteGoal(goal.id);
+            let result = deleteGoal(goal.id);
+            
+            // If snapshot failed, ask for override
+            if (!result.success && result.snapshotFailed) {
+                if (confirm("Couldn't create a safety copy. Delete anyway?")) {
+                    result = deleteGoal(goal.id, true); // force delete
+                } else {
+                    return; // user cancelled
+                }
+            }
+
             if (!result.success) { alert(result.error); return; }
             renderGoalList();
         });
@@ -279,8 +289,10 @@ function renderTodayView() {
     // Backup reminder
     const todayStr = getTodayString();
     let showBackupReminder = false;
+    const hasData = getData().blocks.length >= 5;
 
-    if (meta.reminderDismissedUntil !== todayStr) {
+    // Don't show if first-run banner is showing, or user dismissed it today, or no data yet
+    if (meta.firstRunDismissed && meta.reminderDismissedUntil !== todayStr && hasData) {
         if (!meta.lastBackupAt) {
             showBackupReminder = true;
         } else {
@@ -294,9 +306,7 @@ function renderTodayView() {
 
     if (showBackupReminder) {
         const reminder = document.createElement("div");
-        reminder.className = "banner";
-        reminder.style.backgroundColor = "#d97706"; // Amber warning
-        reminder.style.borderColor = "#b45309";
+        reminder.className = "banner banner-warning";
 
         const reminderText = document.createElement("div");
         reminderText.textContent = "It's been a while since your last backup. Go to Settings to export your data.";

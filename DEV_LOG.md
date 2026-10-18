@@ -619,9 +619,44 @@ Architect flagged inconsistencies after commit. Fixed:
 - Why the recovery section wasn't showing during testing until I realized I typed `"null"` (a string) instead of deleting the title or leaving it empty.
 
 ### Design decisions locked in
-- All inline styles are removed from the HTML and JS; styling lives entirely in `css/styles.css`.
+- Most inline styles are removed from the HTML and JS; styling lives primarily in css/styles.css.
 - The backup reminder banner is amber (`#d97706`) to distinguish it from the blue first-run banner.
 - Recovery data is downloaded as `study-planner-recovery-YYYY-MM-DD.json`.
+
+---
+
+## Day 13 — Final Fixes and Styling Polish
+**Date:** 18 October 2026
+**Time spent:** ~2 hours
+
+### What I did
+
+**Study Planner:**
+- Refined the snapshot logic: `deleteBlock` no longer creates a snapshot (too granular). `deleteGoal` now prompts "Delete anyway?" if the snapshot fails, while `applyImport` still hard-stops if the snapshot fails.
+- Gated the backup reminder: it now only shows if the user has 5+ tasks, hasn't backed up in 7 days, and isn't already seeing the first-run banner.
+- Moved the amber backup reminder colors into CSS (`.banner-warning`).
+- Replaced remaining inline styles in the Settings view with the `.muted` class.
+- Added `for` attributes to labels in the quick-add form for better accessibility.
+- Verified mobile layout via DevTools Device Mode.
+
+**Driver app:**
+- Checked for new comments/feedback. (None).
+- Finalized launch campaign documentation.
+
+### What worked
+- The decision to limit snapshots to Goal deletes keeps task management fast while still protecting against massive data loss.
+- DevTools device mode confirmed that input fields and tap targets are mobile-friendly.
+
+### What I learned
+- **Different destructive actions need different safety levels.** Deleting a single task is easy to redo; deleting a goal (and its 20 tasks) or importing a bad backup is catastrophic. The snapshot logic should reflect that difference.
+- **Storage limits shouldn't completely block tasks.** By removing the snapshot from `deleteBlock`, a full storage drive won't trap a user with a task they desperately want to delete.
+
+### What confused me
+- Whether a task deletion should still snapshot. Decided against it to keep the UX smooth and avoid storage bloat. The snapshot is reserved for goals and imports.
+
+### Design decisions locked in
+- Snapshot logic: Import (hard stop if fails), Delete Goal (prompt to override), Delete Task (no snapshot).
+- Backup reminder rules: Must have 5+ tasks, `firstRunDismissed === true`, and `lastBackupAt` older than 7 days.
 
 ---
 

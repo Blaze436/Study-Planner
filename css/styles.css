@@ -203,3 +203,21 @@ button:hover {
 .action-btn.danger:hover {
     background: rgba(229, 62, 62, 0.1);
 }
+
+/* Banner Variants */
+.banner-warning {
+    background-color: #d97706;
+    border-color: #b45309;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.85em;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
