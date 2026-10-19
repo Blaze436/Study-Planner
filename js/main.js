@@ -321,3 +321,51 @@ document.getElementById("restoreSnapshotBtn").addEventListener("click", function
     renderTodayView();
     showView("todayView");
 });
+
+// --- Cross-tab synchronization and midnight refresh ---
+
+function handleExternalDataChange() {
+    // Reload data from storage into memory
+    initData();
+
+    // 1. Check if the currently open goal was deleted in another tab
+    if (currentGoalId && !getData().goals.find(function(g) { return g.id === currentGoalId; })) {
+        currentGoalId = null;
+    }
+
+    // 2. Check if the task currently being edited was deleted in another tab
+    if (editingBlockId && !getData().blocks.find(function(b) { return b.id === editingBlockId; })) {
+        editingBlockId = null;
+        resetTaskForm(); // from screens.js
+    }
+
+    // 3. Re-render whichever view is currently visible
+    if (document.getElementById("todayView").style.display !== "none") {
+        renderTodayView();
+    } else if (document.getElementById("goalsListView").style.display !== "none") {
+        renderGoalList();
+    } else if (document.getElementById("goalDetailView").style.display !== "none") {
+        if (currentGoalId) {
+            renderGoalDetail();
+        } else {
+            backToGoalList();
+        }
+    } else if (document.getElementById("settingsView").style.display !== "none") {
+        updateSnapshotInfo();
+    }
+}
+
+// Listen for storage changes from OTHER tabs
+window.addEventListener("storage", function(e) {
+    // e.key is null when localStorage.clear() is called
+    if (e.key === "studyPlanner" || e.key === null) {
+        handleExternalDataChange();
+    }
+});
+
+// Refresh when the user returns to the tab (fixes the "left open past midnight" issue)
+document.addEventListener("visibilitychange", function() {
+    if (document.visibilityState === "visible") {
+        handleExternalDataChange();
+    }
+});

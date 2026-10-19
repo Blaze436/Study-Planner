@@ -9,7 +9,16 @@ prescribing a rigid workflow.
 
 **Live:** https://blaze436.github.io/Study-Planner/
 
-**Status:** In active development. The MVP is not complete yet.
+**Status:** v1.0.0 MVP. Code-complete.
+
+## Features
+
+- **Goals & Tasks:** Create goals, break them into tasks, and schedule them.
+- **Today's View:** See only what's due today, grouped by goal.
+- **Missed Tasks:** Past-due tasks appear in a collapsible section, not an anxiety wall.
+- **Reordering:** Move tasks up or down within a goal.
+- **Durability:** Export/import JSON backups, share-sheet export on mobile, and a single-slot safety snapshot before destructive actions.
+- **Local-first:** No accounts, no analytics, no servers.
 
 ## Stack
 
@@ -19,6 +28,16 @@ in the browser's `localStorage`. Backup export is available in Settings.
 ## Running it
 
 Open `index.html` in a browser. That's it.
+
+## Known Limitations
+
+- **Phone Testing:** The share sheet, download location, and import file picker are untested on a real phone (though fallbacks exist for each).
+- **Data Loss Risk:** Data lives in one browser on one device. Browsers can clear storage, so export regularly.
+- **No Cloud Sync:** Backups must be transferred manually.
+
+## Privacy
+
+There are no analytics scripts in this app. Nothing leaves your device.
 
 ## Project layout
 
