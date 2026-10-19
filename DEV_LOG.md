@@ -662,3 +662,36 @@ Architect flagged inconsistencies after commit. Fixed:
 
 ### Honesty note (updated Oct 17)
 Across the whole build, I wrote the structure, integration, and tests. DeepSeek generated these pieces, which I reviewed and understand: `exportAll`, `reorderBlock`, `isValidDateString`, the download wiring, the safety snapshot logic, the share-sheet pattern, the recovery data download, and the backup reminder logic.
+
+---
+
+## Day 14 — Cross-Tab Sync and MVP Release
+**Date:** 19 October 2026
+**Time spent:** ~2 hours
+
+### What I did
+
+**Study Planner:**
+- Added cross-tab synchronization in `js/main.js`: listening for the `storage` event reloads data from localStorage and re-renders the active view. If a goal or task being edited in the current tab was deleted in another tab, the UI gracefully backs out of the stale state.
+- Added a `visibilitychange` listener to fix the "midnight staleness" bug (reloads data when the user returns to the tab).
+- Ran the full 9-point success criteria test pass and the safety/edge-case test pass (cleared storage, recovery mode, XSS injection, 300 tasks).
+- Updated `README.md` with the v1.0.0 status, features, known limitations, and privacy policy.
+- Tagged the release as `v1.0.0-mvp` and published a GitHub Release.
+
+### What worked
+- The cross-tab sync worked flawlessly on the first try. Opening two tabs side-by-side proved the app stays in sync.
+- The XSS protection (`textContent` over `innerHTML`) held up against the injection test.
+- Generating 300 tasks in the console showed no noticeable lag in Today's View.
+
+### What I learned
+- **The `storage` event is magic for local-first apps.** It only fires in *other* tabs, which is exactly what you want for syncing.
+- **The difference between single-user state and multi-tab state.** We assume one user, but that user might have two tabs open. The `storage` event solves this without complex backend logic.
+- **Documentation is part of the release.** Writing the "Known Limitations" section made me feel much more confident about shipping the MVP—it's honest about what it doesn't do, which makes what it *does* do shine brighter.
+
+### What confused me
+- I initially wondered if `storage` events would cause infinite loops (saving → event → saving). Because the event doesn't fire in the originating tab, there's no loop.
+
+### Design decisions locked in
+- Cross-tab sync is handled entirely by the browser's native `storage` event.
+- Graceful fallback: if a user is looking at a goal in Tab A and deletes it in Tab B, Tab A smoothly redirects to the Goals list instead of crashing.
+- The MVP is officially code-complete. Pending validation on a real phone.
